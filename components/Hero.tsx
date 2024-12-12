@@ -38,7 +38,7 @@ export default function Hero() {
               </Button>
             </Link>
           </div>
-          <div className="mt-16 grid grid-cols-2 gap-8 md:grid-cols-4">
+          {/* <div className="mt-16 grid grid-cols-2 gap-8 md:grid-cols-4">
             <div>
               <h3 className="text-4xl font-bold">200K+</h3>
               <p className="mt-2 text-muted-foreground">Total Items</p>
@@ -55,7 +55,7 @@ export default function Hero() {
               <h3 className="text-4xl font-bold">8.5 ETH</h3>
               <p className="mt-2 text-muted-foreground">Trading Volume</p>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
