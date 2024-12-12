@@ -1,16 +1,16 @@
 'use client';
 
 import { Card } from '@/components/ui/card';
-import { Palette, Camera, Music, Code, GamepadIcon, Globe } from 'lucide-react';
+import { Gamepad, MapPin, Music, Palette, Shirt, Move } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const categories = [
-  { name: 'Art', icon: Palette, count: '32,543' },
-  { name: 'Photography', icon: Camera, count: '15,234' },
-  { name: 'Music', icon: Music, count: '8,765' },
-  { name: 'Virtual Worlds', icon: Globe, count: '6,543' },
-  { name: 'Trading Cards', icon: GamepadIcon, count: '12,432' },
-  { name: 'Collectibles', icon: Code, count: '21,876' },
+  { name: 'Game Art', icon: Palette, count: '32,543' },
+  { name: 'Music & Sounds', icon: Music, count: '15,234' },
+  { name: 'Skins', icon: Shirt, count: '8,765' },
+  { name: 'In-Game Items', icon: Gamepad, count: '6,543' },
+  { name: 'Maps', icon: MapPin, count: '12,432' },
+  { name: 'Animations', icon: Move, count: '21,876' },
 ];
 
 export default function Categories() {

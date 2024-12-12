@@ -1,5 +1,5 @@
 export interface NFT {
-  id: string;
+  id: number;
   title: string;
   description: string;
   creator: string;

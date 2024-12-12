@@ -27,7 +27,7 @@ export default function Hero() {
                 Explore
               </Button>
             </Link>
-            <Link href="/create">
+            <Link href="/auth/login">
               <Button
                 size="lg"
                 variant="outline"

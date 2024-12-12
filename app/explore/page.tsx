@@ -4,8 +4,14 @@ import { useState } from 'react';
 import CategoryFilter from '@/components/CategoryFilter';
 import NFTGrid from '@/components/NFTGrid';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
 import { Search } from 'lucide-react';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 export default function ExplorePage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -24,11 +30,16 @@ export default function ExplorePage() {
             />
           </div>
           <Select>
-            <option value="recent">Recently Listed</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="popular">Most Popular</option>
-          </Select>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Sort by" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="recent">Recently Listed</SelectItem>
+        <SelectItem value="price-low">Price: Low to High</SelectItem>
+        <SelectItem value="price-high">Price: High to Low</SelectItem>
+        <SelectItem value="popular">Most Popular</SelectItem>
+      </SelectContent>
+    </Select>
         </div>
 
         <CategoryFilter

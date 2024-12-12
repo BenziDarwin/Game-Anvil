@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Heart, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-
+import { useState } from 'react';
 
 const trendingNFTs = [
   {
@@ -35,18 +35,52 @@ const trendingNFTs = [
 
 export default function TrendingNFTs() {
   const router = useRouter();
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>, id: number) => {
+    const card = event.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = (y - centerY) / 10;
+    const rotateY = (centerX - x) / 10;
+
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+  };
+
+  const handleMouseLeave = (event: React.MouseEvent<HTMLDivElement>) => {
+    const card = event.currentTarget;
+    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+    setHoveredCard(null);
+  };
+
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <h2 className="text-3xl font-bold mb-8">Trending NFTs</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {trendingNFTs.map((nft) => (
-          <Card key={nft.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push("/nft/1")}>
+          <Card
+            key={nft.id}
+            className="overflow-hidden transition-all duration-300 ease-out"
+            style={{
+              transformStyle: 'preserve-3d',
+              transform: hoveredCard === nft.id ? 'translateZ(20px)' : 'none',
+            }}
+            onMouseEnter={() => setHoveredCard(nft.id)}
+            onMouseMove={(e) => handleMouseMove(e, nft.id)}
+            onMouseLeave={handleMouseLeave}
+          >
             <div className="relative aspect-square">
               <Image
                 src={nft.image}
                 alt={nft.title}
                 fill
-                className="object-cover"
+                className="object-cover cursor-pointer"
+                onClick={() => router.push("/nft/1")}
               />
             </div>
             <div className="p-4">
@@ -73,3 +107,4 @@ export default function TrendingNFTs() {
     </section>
   );
 }
+
