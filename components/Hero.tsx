@@ -10,12 +10,12 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="text-center">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-8">
-            Discover, Collect & Sell
-            <span className="text-orange-500"> Extraordinary </span>
+            Discover, Collect & Sell  
+            <span className="text-orange-500"> Game </span>
             NFTs
           </h1>
           <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto">
-            The world's largest digital marketplace for crypto collectibles and non-fungible tokens.
+          Discover the ultimate hub for crypto collectibles and one-of-a-kind digital assets, revolutionizing the way you game!
           </p>
           <div className="mt-12 flex justify-center gap-4">
             <Link href="/explore">
