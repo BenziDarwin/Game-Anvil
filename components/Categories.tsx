@@ -2,6 +2,7 @@
 
 import { Card } from '@/components/ui/card';
 import { Palette, Camera, Music, Code, GamepadIcon, Globe } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const categories = [
   { name: 'Art', icon: Palette, count: '32,543' },
@@ -13,6 +14,7 @@ const categories = [
 ];
 
 export default function Categories() {
+  const router = useRouter();
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <h2 className="text-3xl font-bold mb-8">Browse by Category</h2>
@@ -23,6 +25,7 @@ export default function Categories() {
             <Card
               key={category.name}
               className="p-6 text-center hover:shadow-lg transition-shadow cursor-pointer group"
+              onClick={() => router.push("/explore")}
             >
               <div className="flex justify-center mb-4">
                 <Icon className="h-8 w-8 text-orange-500 group-hover:text-orange-600 transition-colors" />

@@ -9,15 +9,7 @@ const routes = [
   {
     href: '/explore',
     label: 'Explore',
-  },
-  {
-    href: '/stats',
-    label: 'Stats',
-  },
-  {
-    href: '/create',
-    label: 'Create',
-  },
+  }
 ];
 
 export default function MainNav() {
