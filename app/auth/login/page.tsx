@@ -13,8 +13,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Hammer } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const router = useRouter();
+  
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -44,7 +47,7 @@ export default function LoginPage() {
           </Link>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <Button className="w-full bg-orange-500 hover:bg-orange-600">
+          <Button onClick={() => router.push("/profile")} className="w-full bg-orange-500 hover:bg-orange-600">
             Sign In
           </Button>
           <p className="text-sm text-center text-gray-600">

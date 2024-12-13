@@ -1,14 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { User, LogOut, Settings, Wallet } from 'lucide-react';
+import { Edit, LogOut, PlusSquare, Settings, User } from 'lucide-react';
 import Link from 'next/link';
 
 interface UserMenuProps {
@@ -16,9 +9,9 @@ interface UserMenuProps {
 }
 
 export default function UserMenu({ isMobile = false }: UserMenuProps) {
-  const isAuthenticated = false; // Replace with actual auth state
+  const isAuthenticated = true; // Replace with actual auth state
 
-  if (!isAuthenticated) {
+  if (isAuthenticated) {
     return (
       <div className={`flex ${isMobile ? 'flex-col w-full' : 'gap-2'}`}>
         <Link href="/auth/login" className={isMobile ? 'w-full' : ''}>
@@ -37,51 +30,63 @@ export default function UserMenu({ isMobile = false }: UserMenuProps) {
 
   const menuItems = (
     <>
-      <DropdownMenuItem asChild>
-        <Link href="/profile" className="cursor-pointer">
+      <li className="block py-2 px-4 hover:bg-gray-100">
+        <Link href="/profile" className="cursor-pointer flex items-center">
           <User className="mr-2 h-4 w-4" />
           Profile
         </Link>
-      </DropdownMenuItem>
-      <DropdownMenuItem>
-        <Wallet className="mr-2 h-4 w-4" />
-        Connect Wallet
-      </DropdownMenuItem>
-      <DropdownMenuItem>
-        <Settings className="mr-2 h-4 w-4" />
-        Settings
-      </DropdownMenuItem>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem className="text-red-600">
-        <LogOut className="mr-2 h-4 w-4" />
-        Logout
-      </DropdownMenuItem>
+      </li>
+      <li className="block py-2 px-4 hover:bg-gray-100">
+        <Link href="/profile/create-nft" className="cursor-pointer flex items-center">
+          <PlusSquare className="mr-2 h-4 w-4" />
+          Create NFT
+        </Link>
+      </li>
+      <li className="block py-2 px-4 hover:bg-gray-100">
+        <Link href="/profile/edit" className="cursor-pointer flex items-center">
+          <Edit className="mr-2 h-4 w-4" />
+          Edit Profile
+        </Link>
+      </li>
+      <li className="block py-2 px-4 hover:bg-gray-100">
+        <Link href="/settings" className="cursor-pointer flex items-center">
+          <Settings className="mr-2 h-4 w-4" />
+          Settings
+        </Link>
+      </li>
+      <li className="block py-2 px-4 hover:bg-gray-100 text-red-600">
+        <Link href="/" className="cursor-pointer flex items-center">
+          <LogOut className="mr-2 h-4 w-4" />
+          Logout
+        </Link>
+      </li>
     </>
   );
+  
+  
 
   if (isMobile) {
     return (
       <div className="flex flex-col space-y-2">
-        {menuItems}
+        <ul style={{ color: "black", listStyleType: "none", padding: 0, marginTop: 8 }}>
+          {menuItems}
+        </ul>
       </div>
     );
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <img
-            src="https://github.com/shadcn.png"
-            alt="Avatar"
-            className="rounded-full"
-          />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+    <div className="relative md:hidden">
+      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <img
+          src="https://github.com/shadcn.png"
+          alt="Avatar"
+          className="rounded-full"
+        />
+      </Button>
+      <ul style={{ color: "black", listStyleType: "none", padding: 0, marginTop: 8 }}>
         {menuItems}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </ul>
+    </div>
   );
 }
-

@@ -17,7 +17,6 @@ export default function Navbar() {
         <MainNav />
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-4">
-            <ThemeToggle />
             <UserMenu />
           </div>
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -29,7 +28,6 @@ export default function Navbar() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
               <nav className="flex flex-col gap-4">
-                <ThemeToggle />
                 <UserMenu />
               </nav>
             </SheetContent>

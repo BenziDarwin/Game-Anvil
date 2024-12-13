@@ -67,7 +67,6 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
           <TabsList>
             <TabsTrigger value="collected">Collected</TabsTrigger>
             <TabsTrigger value="created">Created</TabsTrigger>
-            <TabsTrigger value="favorited">Favorited</TabsTrigger>
           </TabsList>
 
           <TabsContent value="collected" className="mt-6">
@@ -78,9 +77,6 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
             <NFTGrid category={selectedCategory} />
           </TabsContent>
 
-          <TabsContent value="favorited" className="mt-6">
-            <NFTGrid category={selectedCategory} />
-          </TabsContent>
         </Tabs>
       </div>
     </main>
