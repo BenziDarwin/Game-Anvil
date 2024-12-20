@@ -1,54 +1,41 @@
-'use client';
+'use client'
 
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Chain, ethereumChains, useChain } from "@/context/ChainContext";
+import { Coins, Menu, Paintbrush, Settings, User } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import MainNav from './MainNav';
 import UserMenu from './UserMenu';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { getCurrentChain } from "@/utils/ethereum";
 
-const ethereumChains = [
-  { id: 1, name: 'Ethereum Mainnet' },
-  { id: 5, name: 'Goerli Testnet' },
-  { id: 137, name: 'Polygon Mainnet' },
-  { id: 80001, name: 'Mumbai Testnet' },
-];
+// Define the paths where the chain selector should be shown
+const CHAIN_SELECTOR_PATHS = ['/profile/create-nft'];
 
 export default function Navbar() {
+  const { state, dispatch } = useChain();
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedChain, setSelectedChain] = useState<number | null>(null);
+  const pathname = usePathname();
 
-  // Use effect to set the initial selected chain based on the current chain
+  const showChainSelector = CHAIN_SELECTOR_PATHS.includes(pathname);
+
   useEffect(() => {
     const fetchCurrentChain = async () => {
-      const chainId = await getCurrentChain();
-      if (chainId) {
-        setSelectedChain(chainId);
+      const storedChainId = localStorage.getItem('chainId');
+      if (storedChainId) {
+        dispatch({ type: 'SET_CHAIN', payload: parseInt(storedChainId, 10) });
       }
     };
 
     fetchCurrentChain();
-  }, []); // Run this effect once when the component mounts
+  }, [dispatch]);
 
-  // Handle chain change
-  const handleChainChange = async (event: any) => {
-    const chainId = parseInt(event.target.value, 10);
-    setSelectedChain(chainId);
-
-    if (window.ethereum) {
-      try {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: `0x${chainId.toString(16)}` }], // Convert to hexadecimal
-        });
-      } catch (switchError) {
-        console.error('Failed to switch chain:', switchError);
-        // Optionally handle adding a chain if it isn't available
-      }
-    } else {
-      alert('Please install a Web3 wallet (e.g., MetaMask)');
-    }
+  const handleChainChange = async (value: string) => {
+    const chainId = parseInt(value, 10);
+    dispatch({ type: 'SET_CHAIN', payload: chainId });
+    localStorage.setItem('chainId', chainId.toString());
   };
 
   return (
@@ -57,19 +44,9 @@ export default function Navbar() {
         <MainNav />
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-4">
-            {/* Dropdown for Chain Selection */}
-            <select
-              className="border rounded-md px-2 py-1 bg-background text-foreground"
-              value={selectedChain || ''}
-              onChange={handleChainChange}
-              disabled={selectedChain === null}
-            >
-              {ethereumChains.map((chain) => (
-                <option key={chain.id} value={chain.id}>
-                  {chain.name}
-                </option>
-              ))}
-            </select>
+            {showChainSelector && (
+              <ChainSelector selectedChain={state.currentChain} onChainChange={handleChainChange} />
+            )}
             <UserMenu />
           </div>
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -79,27 +56,57 @@ export default function Navbar() {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+            <SheetContent side="right" className="w-[300px] sm:w-[400px] p-4 bg-white rounded-lg shadow-lg">
               <nav className="flex flex-col gap-4">
-                {/* Dropdown for Chain Selection in Mobile View */}
-                <select
-                  className="border rounded-md px-2 py-1 bg-background text-foreground"
-                  value={selectedChain || ''}
-                  onChange={handleChainChange}
-                  disabled={selectedChain === null}
-                >
-                  {ethereumChains.map((chain) => (
-                    <option key={chain.id} value={chain.id}>
-                      {chain.name}
-                    </option>
-                  ))}
-                </select>
-                <UserMenu />
+                {showChainSelector && (
+                  <ChainSelector selectedChain={state.currentChain} onChainChange={handleChainChange} />
+                )}
+                <Link href="/profile">
+                  <Button variant="link" className="text-gray-900 hover:text-blue-500 flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    My Profile
+                  </Button>
+                </Link>
+                <Link href="/profile/create-nft">
+                  <Button variant="link" className="text-gray-900 hover:text-blue-500 flex items-center gap-2">
+                    <Paintbrush className="h-4 w-4" />
+                    Create NFT
+                  </Button>
+                </Link>
+                <Link href="/settings">
+                  <Button variant="link" className="text-gray-900 hover:text-blue-500 flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    Settings
+                  </Button>
+                </Link>
               </nav>
+              <UserMenu />
             </SheetContent>
           </Sheet>
         </div>
       </div>
     </header>
+  );
+}
+
+function ChainSelector({ selectedChain, onChainChange }: { selectedChain: Chain | null, onChainChange: (value: string) => void }) {
+  if (!selectedChain) return null;
+
+  return (
+    <Select onValueChange={onChainChange} value={selectedChain.id.toString()}>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Select a chain" />
+      </SelectTrigger>
+      <SelectContent>
+        {ethereumChains.map((chain) => (
+          <SelectItem key={chain.id} value={chain.id.toString()}>
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full`} />
+              <span className="flex items-center gap-2"><Coins className={`${chain.color} h-4 w-4`} /> {chain.name}</span>
+            </div>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
