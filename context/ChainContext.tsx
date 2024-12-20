@@ -13,7 +13,7 @@ export const ethereumChains: Chain[] = [
   { id: 5, name: 'Goerli Testnet', color: 'text-green-500' },
   { id: 137, name: 'Polygon Mainnet', color: 'text-purple-500' },
   { id: 80001, name: 'Mumbai Testnet', color: 'text-pink-500' },
-  {id: 1337, name: 'Local RPC Provider', color: 'text-red-500'}
+  {id: 5777, name: 'Local RPC Provider', color: 'text-red-500'}
 ];
 
 interface ChainState {

@@ -1,9 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { AppSidebar } from '@/components/Profile/SideBar'
-import { SidebarProvider } from '@/components/ui/sidebar'
 import NFTForms from '@/components/NFTForms'
+import { AppSidebar } from '@/components/Profile/SideBar'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -14,48 +12,39 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { getEthPrice } from '@/actions/getEthPrice'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import GameNFT from '@/contracts/GameNFT.json'
+import { deployContract } from '@/utils/ethereum'
+import { ethers } from 'ethers'
+import { useState } from 'react'
 
 export default function Page() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
-  const [collectionData, setCollectionData] = useState({ symbol: '', name: '' })
-  const [ethPrice, setEthPrice] = useState<number | null>(null)
-  const creationFeeEth = 0.001
+  const [error, setError] = useState<string | null>(null) // State to store the error message
 
   const handleCreateCollection = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     const symbol = formData.get('symbol') as string
     const name = formData.get('name') as string
+    try {
+      // Deploy the contract
+      const private_key = process.env.NEXT_PUBLIC_PRIVATE_KEY;
+      const trans = await deployContract(private_key!, GameNFT.abi as ethers.InterfaceAbi, GameNFT.bytecode, "http://127.0.0.1:7545", [name, symbol]);
+      console.log(trans);
+    } catch (error) {
+      console.error(error)
+      setError('An error occurred while deploying the contract. Please try again.') // Set error message
 
-    setCollectionData({ symbol, name })
-
-    // Fetch the current ETH price
-    const price = await getEthPrice()
-    setEthPrice(price)
-
+      // Set a timeout to clear the error after 5 seconds
+      setTimeout(() => {
+        setError(null)
+      }, 5000)
+    }
     setIsDialogOpen(false)
-    setIsConfirmDialogOpen(true)
-  }
-
-  const handleConfirmCreation = () => {
-    // Here you would typically send this data to your backend or smart contract
-    console.log('Creating collection:', collectionData)
-    setIsConfirmDialogOpen(false)
-    // Additional logic for creating the collection
   }
 
   return (
@@ -113,39 +102,17 @@ export default function Page() {
             </div>
             <div className="bg-card p-6 rounded-lg">
               <h2 className="text-2xl font-semibold mb-6">Create New NFT</h2>
+              {error && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
               <NFTForms />
             </div>
           </div>
         </main>
       </div>
-      <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Collection Creation</AlertDialogTitle>
-            <AlertDialogDescription>
-              You are about to create a new collection with the following details:
-              <br />
-              Symbol: {collectionData.symbol}
-              <br />
-              Name: {collectionData.name}
-              <br /><br />
-              Creating a new collection will cost approximately {creationFeeEth} ETH
-              {ethPrice && (
-                <span className="block mt-2">
-                  (≈ ${(creationFeeEth * ethPrice).toFixed(2)} USD)
-                </span>
-              )}
-              <br />
-              Do you want to proceed?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmCreation}>Confirm</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </SidebarProvider>
   )
 }
-
