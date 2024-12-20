@@ -1,29 +1,31 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { 
-  Twitter, 
-  Instagram, 
-  Github 
-} from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import { Twitter, Instagram, Github } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { 
-      icon: <Twitter className="h-5 w-5 hover:text-orange-500 transition-colors" />, 
-      href: "#" 
+    {
+      icon: (
+        <Twitter className="h-5 w-5 hover:text-orange-500 transition-colors" />
+      ),
+      href: "#",
     },
-    { 
-      icon: <Instagram className="h-5 w-5 hover:text-orange-500 transition-colors" />, 
-      href: "#" 
+    {
+      icon: (
+        <Instagram className="h-5 w-5 hover:text-orange-500 transition-colors" />
+      ),
+      href: "#",
     },
-    { 
-      icon: <Github className="h-5 w-5 hover:text-orange-500 transition-colors" />, 
-      href: "#" 
+    {
+      icon: (
+        <Github className="h-5 w-5 hover:text-orange-500 transition-colors" />
+      ),
+      href: "#",
     },
   ];
 
@@ -36,20 +38,20 @@ const Footer: React.FC = () => {
           </div>
 
           <div className="flex space-x-4 mb-4 md:mb-0">
-            <Link 
-              href="/marketplace" 
+            <Link
+              href="/marketplace"
               className="text-sm text-muted-foreground hover:text-orange-500 transition-colors"
             >
               Marketplace
             </Link>
-            <Link 
-              href="/about" 
+            <Link
+              href="/about"
               className="text-sm text-muted-foreground hover:text-orange-500 transition-colors"
             >
               About
             </Link>
-            <Link 
-              href="/contact" 
+            <Link
+              href="/contact"
               className="text-sm text-muted-foreground hover:text-orange-500 transition-colors"
             >
               Contact
@@ -58,8 +60,8 @@ const Footer: React.FC = () => {
 
           <div className="flex space-x-4">
             {socialLinks.map((social, index) => (
-              <Link 
-                key={index} 
+              <Link
+                key={index}
                 href={social.href}
                 className="text-muted-foreground hover:text-orange-500 transition-colors"
               >

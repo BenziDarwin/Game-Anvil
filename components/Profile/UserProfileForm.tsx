@@ -1,36 +1,40 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function UserProfileForm() {
   const [profile, setProfile] = useState({
-    name: '',
-    bio: '',
-    avatarUrl: '',
-  })
+    name: "",
+    bio: "",
+    avatarUrl: "",
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setProfile(prev => ({ ...prev, [name]: value }))
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setProfile((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // TODO: Implement profile update logic
-    console.log('Profile updated:', profile)
-  }
+    console.log("Profile updated:", profile);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
       <div className="flex items-center space-x-4">
         <Avatar className="w-16 h-16">
           <AvatarImage src={profile.avatarUrl} alt={profile.name} />
-          <AvatarFallback>{profile.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+          <AvatarFallback>
+            {profile.name.slice(0, 2).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
         <div className="flex-1">
           <Label htmlFor="avatarUrl">Avatar URL</Label>
@@ -64,8 +68,9 @@ export function UserProfileForm() {
           rows={3}
         />
       </div>
-      <Button type="submit" className="w-full">Save Profile</Button>
+      <Button type="submit" className="w-full">
+        Save Profile
+      </Button>
     </form>
-  )
+  );
 }
-

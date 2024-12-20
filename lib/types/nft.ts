@@ -1,4 +1,11 @@
-export type NFTCategory = 'skins' | 'mods' | 'sounds' | 'items' | 'art' | 'maps' | 'animations';
+export type NFTCategory =
+  | "skins"
+  | "mods"
+  | "sounds"
+  | "items"
+  | "art"
+  | "maps"
+  | "animations";
 
 export interface NFTMetadata {
   name: string;

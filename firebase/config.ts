@@ -10,7 +10,7 @@ const firebaseConfig = {
   storageBucket: "game-anvil-79345.firebasestorage.app",
   messagingSenderId: "450167805500",
   appId: "1:450167805500:web:2feb9b9b0b93f488b15539",
-  measurementId: "G-KYEQ49322B"
+  measurementId: "G-KYEQ49322B",
 };
 
 // Initialize Firebase

@@ -1,26 +1,49 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Avatar } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { VerifiedIcon, Users, Calendar } from 'lucide-react';
-import NFTGrid from '@/components/NFTGrid';
-import { Collector } from '@/lib/types';
+import { useEffect, useState } from "react";
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { VerifiedIcon, Users, Calendar } from "lucide-react";
+import NFTGrid from "@/components/NFTGrid";
+import { Collector } from "@/lib/types";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import HammerLoader from "@/components/Loader";
 
 export default function ProfilePage({ params }: { params: { id: string } }) {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
+  const { currentUser, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      router.push("/auth/login");
+    }
+  }, [currentUser, loading]);
+
+  if (loading) return <HammerLoader />;
+
+  if (!currentUser) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Unauthorized - Redirecting to login...</div>
+      </div>
+    );
+  }
 
   // Mock data - In a real app, fetch based on params.id
   const collector: Collector = {
     id: params.id,
-    name: 'GameMaster',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop',
-    volume: '1,234.56 ETH',
+    name: "GameMaster",
+    avatar:
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop",
+    volume: "1,234.56 ETH",
     verified: true,
-    bio: 'Passionate game collector and trader. Specializing in rare skins and items.',
-    joinedDate: 'January 2024',
+    bio: "Passionate game collector and trader. Specializing in rare skins and items.",
+    joinedDate: "January 2024",
     collections: 45,
     followers: 1234,
     following: 567,
@@ -53,7 +76,10 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
               </div>
             </div>
             <div className="md:ml-auto">
-              <Button variant="secondary" className="bg-white text-orange-500 hover:bg-orange-50">
+              <Button
+                variant="secondary"
+                className="bg-white text-orange-500 hover:bg-orange-50"
+              >
                 Follow
               </Button>
             </div>
@@ -76,7 +102,6 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
           <TabsContent value="created" className="mt-6">
             <NFTGrid category={selectedCategory} />
           </TabsContent>
-
         </Tabs>
       </div>
     </main>

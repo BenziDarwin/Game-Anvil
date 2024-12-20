@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 declare global {
   interface Window {
@@ -15,18 +15,18 @@ export const useWallet = () => {
 
   const connectWallet = async () => {
     if (!window.ethereum) {
-      setError('Please install MetaMask');
+      setError("Please install MetaMask");
       return;
     }
 
     setIsConnecting(true);
     try {
       const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts',
+        method: "eth_requestAccounts",
       });
       setAccount(accounts[0]);
     } catch (err) {
-      setError('Failed to connect wallet');
+      setError("Failed to connect wallet");
     } finally {
       setIsConnecting(false);
     }
@@ -35,12 +35,12 @@ export const useWallet = () => {
   const disconnectWallet = () => {
     setAccount(null);
     setError(null); // Clear any existing errors
-    console.log('Wallet disconnected');
+    console.log("Wallet disconnected");
   };
 
   useEffect(() => {
     if (window.ethereum) {
-      window.ethereum.on('accountsChanged', (accounts: string[]) => {
+      window.ethereum.on("accountsChanged", (accounts: string[]) => {
         setAccount(accounts[0] || null);
       });
     }

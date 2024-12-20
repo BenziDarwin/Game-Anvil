@@ -1,15 +1,22 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { GameMetadata } from '@/lib/types/nft';
-import { Badge } from '@/components/ui/badge';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { GameMetadata } from "@/lib/types/nft";
+import { Badge } from "@/components/ui/badge";
 
-const GENRES = ['Action', 'RPG', 'Strategy', 'Sports', 'Adventure', 'Simulation'];
-const PLATFORMS = ['PC', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Mobile'];
+const GENRES = [
+  "Action",
+  "RPG",
+  "Strategy",
+  "Sports",
+  "Adventure",
+  "Simulation",
+];
+const PLATFORMS = ["PC", "PlayStation", "Xbox", "Nintendo Switch", "Mobile"];
 
 export default function GameForm() {
   const [game, setGame] = useState<Partial<GameMetadata>>({
@@ -19,14 +26,14 @@ export default function GameForm() {
 
   const toggleSelection = (array: string[], item: string) => {
     return array.includes(item)
-      ? array.filter(i => i !== item)
+      ? array.filter((i) => i !== item)
       : [...array, item];
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Implement game registration logic
-    console.log('Game data:', game);
+    console.log("Game data:", game);
   };
 
   return (
@@ -35,8 +42,8 @@ export default function GameForm() {
         <Label htmlFor="name">Game Name</Label>
         <Input
           id="name"
-          value={game.name || ''}
-          onChange={e => setGame({ ...game, name: e.target.value })}
+          value={game.name || ""}
+          onChange={(e) => setGame({ ...game, name: e.target.value })}
           required
         />
       </div>
@@ -45,8 +52,8 @@ export default function GameForm() {
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
-          value={game.description || ''}
-          onChange={e => setGame({ ...game, description: e.target.value })}
+          value={game.description || ""}
+          onChange={(e) => setGame({ ...game, description: e.target.value })}
           required
         />
       </div>
@@ -55,8 +62,8 @@ export default function GameForm() {
         <Label htmlFor="publisher">Publisher</Label>
         <Input
           id="publisher"
-          value={game.publisher || ''}
-          onChange={e => setGame({ ...game, publisher: e.target.value })}
+          value={game.publisher || ""}
+          onChange={(e) => setGame({ ...game, publisher: e.target.value })}
           required
         />
       </div>
@@ -64,15 +71,17 @@ export default function GameForm() {
       <div className="space-y-2">
         <Label>Genres</Label>
         <div className="flex flex-wrap gap-2">
-          {GENRES.map(genre => (
+          {GENRES.map((genre) => (
             <Badge
               key={genre}
-              variant={game.genres?.includes(genre) ? 'default' : 'outline'}
+              variant={game.genres?.includes(genre) ? "default" : "outline"}
               className="cursor-pointer"
-              onClick={() => setGame({
-                ...game,
-                genres: toggleSelection(game.genres || [], genre),
-              })}
+              onClick={() =>
+                setGame({
+                  ...game,
+                  genres: toggleSelection(game.genres || [], genre),
+                })
+              }
             >
               {genre}
             </Badge>
@@ -83,15 +92,19 @@ export default function GameForm() {
       <div className="space-y-2">
         <Label>Platforms</Label>
         <div className="flex flex-wrap gap-2">
-          {PLATFORMS.map(platform => (
+          {PLATFORMS.map((platform) => (
             <Badge
               key={platform}
-              variant={game.platforms?.includes(platform) ? 'default' : 'outline'}
+              variant={
+                game.platforms?.includes(platform) ? "default" : "outline"
+              }
               className="cursor-pointer"
-              onClick={() => setGame({
-                ...game,
-                platforms: toggleSelection(game.platforms || [], platform),
-              })}
+              onClick={() =>
+                setGame({
+                  ...game,
+                  platforms: toggleSelection(game.platforms || [], platform),
+                })
+              }
             >
               {platform}
             </Badge>
@@ -99,7 +112,10 @@ export default function GameForm() {
         </div>
       </div>
 
-      <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600">
+      <Button
+        type="submit"
+        className="w-full bg-orange-500 hover:bg-orange-600"
+      >
         Register Game
       </Button>
     </form>

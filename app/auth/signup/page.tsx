@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,32 +8,32 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Hammer } from 'lucide-react';
-import Link from 'next/link';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Toaster } from '@/components/ui/toaster';
-import { useToast } from '@/hooks/use-toast';
-import { registerWithEmail } from '@/firebase/auth';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Hammer } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/hooks/use-toast";
+import { registerWithEmail } from "@/firebase/auth";
 
 export default function SignUpPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: ''
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [id]: value
+      [id]: value,
     }));
   };
 
@@ -70,13 +70,13 @@ export default function SignUpPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
       await registerWithEmail(formData.email, formData.password);
       toast({
@@ -84,8 +84,8 @@ export default function SignUpPage() {
         description: "Account created successfully",
         variant: "default",
       });
-      
-      router.push('/profile');
+
+      router.push("/profile");
     } catch (error) {
       toast({
         title: "Error",
@@ -114,10 +114,10 @@ export default function SignUpPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">Email</Label>
-              <Input 
-                id="email" 
-                placeholder="Enter your Email..." 
-                type='email'
+              <Input
+                id="email"
+                placeholder="Enter your Email..."
+                type="email"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -125,10 +125,10 @@ export default function SignUpPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                type="password" 
-                placeholder='Enter Password...' 
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter Password..."
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -136,10 +136,10 @@ export default function SignUpPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input 
-                id="confirmPassword" 
-                type="password" 
-                placeholder='Confirm Password...' 
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm Password..."
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
@@ -147,16 +147,19 @@ export default function SignUpPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button 
+            <Button
               type="submit"
               className="w-full bg-orange-500 hover:bg-orange-600"
               disabled={isLoading}
             >
-              {isLoading ? 'Creating Account...' : 'Create Account'}
+              {isLoading ? "Creating Account..." : "Create Account"}
             </Button>
             <p className="text-sm text-center text-gray-600">
-              Already have an account?{' '}
-              <Link href="/auth/login" className="text-orange-500 hover:underline">
+              Already have an account?{" "}
+              <Link
+                href="/auth/login"
+                className="text-orange-500 hover:underline"
+              >
                 Sign in
               </Link>
             </p>

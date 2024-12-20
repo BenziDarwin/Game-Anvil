@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
+import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 
 interface DraggableBoxProps {
   onDrop: (file: File) => void;
@@ -19,7 +19,7 @@ export function DraggableBox({ onDrop, image }: DraggableBoxProps) {
       const url = URL.createObjectURL(image);
       setPreviewUrl(url);
       return () => URL.revokeObjectURL(url);
-    } else if (typeof image === 'string') {
+    } else if (typeof image === "string") {
       setPreviewUrl(image);
     }
   }, [image]);
@@ -47,22 +47,22 @@ export function DraggableBox({ onDrop, image }: DraggableBoxProps) {
 
       if (e.dataTransfer?.files && e.dataTransfer.files[0]) {
         const file = e.dataTransfer.files[0];
-        if (file.type.startsWith('image/')) {
+        if (file.type.startsWith("image/")) {
           onDrop(file);
         } else {
-          alert('Please drop an image file.');
+          alert("Please drop an image file.");
         }
       }
     };
 
-    div.addEventListener('dragover', handleDragOver);
-    div.addEventListener('dragleave', handleDragLeave);
-    div.addEventListener('drop', handleDrop);
+    div.addEventListener("dragover", handleDragOver);
+    div.addEventListener("dragleave", handleDragLeave);
+    div.addEventListener("drop", handleDrop);
 
     return () => {
-      div.removeEventListener('dragover', handleDragOver);
-      div.removeEventListener('dragleave', handleDragLeave);
-      div.removeEventListener('drop', handleDrop);
+      div.removeEventListener("dragover", handleDragOver);
+      div.removeEventListener("dragleave", handleDragLeave);
+      div.removeEventListener("drop", handleDrop);
     };
   }, [onDrop]);
 
@@ -81,7 +81,7 @@ export function DraggableBox({ onDrop, image }: DraggableBoxProps) {
       ref={dropRef}
       onClick={handleClick}
       className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-        isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+        isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
       }`}
     >
       {previewUrl ? (
@@ -106,4 +106,3 @@ export function DraggableBox({ onDrop, image }: DraggableBoxProps) {
     </div>
   );
 }
-

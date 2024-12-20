@@ -1,27 +1,29 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Heart, Share2 } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Heart, Share2 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 export default function NFTPage() {
   const params = useParams();
   const nft = {
     id: params.id,
-    title: 'Dragon Slayer Skin',
-    description: 'Legendary skin for the Dragon Slayer class. This unique skin transforms your character with intricate dragon-scale armor and glowing effects.',
-    creator: 'GameMaster',
-    creatorId: '1',
-    price: '0.5 ETH',
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&h=500&fit=crop',
+    title: "Dragon Slayer Skin",
+    description:
+      "Legendary skin for the Dragon Slayer class. This unique skin transforms your character with intricate dragon-scale armor and glowing effects.",
+    creator: "GameMaster",
+    creatorId: "1",
+    price: "0.5 ETH",
+    image:
+      "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&h=500&fit=crop",
     likes: 123,
-    category: 'skins',
-    game: 'Dragon Quest Online',
-    created: '2024-01-15',
+    category: "skins",
+    game: "Dragon Quest Online",
+    created: "2024-01-15",
   };
 
   return (
@@ -45,7 +47,10 @@ export default function NFTPage() {
             <div className="flex justify-between items-start">
               <div>
                 <h1 className="text-4xl font-bold mb-2">{nft.title}</h1>
-                <Link href={`/profile/${nft.creatorId}`} className="text-orange-500 hover:underline">
+                <Link
+                  href={`/profile/${nft.creatorId}`}
+                  className="text-orange-500 hover:underline"
+                >
                   Created by {nft.creator}
                 </Link>
               </div>
@@ -67,14 +72,14 @@ export default function NFTPage() {
 
               <Card className="p-6">
                 <h3 className="text-lg font-semibold mb-2">Current Price</h3>
-                <p className="text-3xl font-bold text-orange-500">{nft.price}</p>
+                <p className="text-3xl font-bold text-orange-500">
+                  {nft.price}
+                </p>
                 <div className="mt-4 space-x-4">
                   <Button className="bg-orange-500 hover:bg-orange-600">
                     Buy Now
                   </Button>
-                  <Button variant="outline">
-                    Make Offer
-                  </Button>
+                  <Button variant="outline">Make Offer</Button>
                 </div>
               </Card>
 

@@ -1,20 +1,23 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { useIPFSUpload } from '@/hooks/useIPFSUpload';
-import { GameList } from '@/components/GameList';
-import { DraggableBox } from '@/components/DraggableBox';
+import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useIPFSUpload } from "@/hooks/useIPFSUpload";
+import { GameList } from "@/components/GameList";
+import { DraggableBox } from "@/components/DraggableBox";
+import CollectionsSelect from "./CollectionSelect";
+import { getCollection } from "@/firebase/firestore";
+import { auth } from "@/firebase/config";
 
 interface Game {
   id: number;
@@ -32,61 +35,91 @@ interface SoundFormData {
   image?: File;
   soundFile?: File;
   compatibleGames: Game[];
+  collection: string;
 }
 
 export default function SoundForm() {
   const [formData, setFormData] = useState<SoundFormData>({
-    name: '',
-    description: '',
-    duration: '',
-    soundType: '',
-    license: '',
-    composer: '',
+    name: "",
+    description: "",
+    duration: "",
+    soundType: "",
+    license: "",
+    composer: "",
     compatibleGames: [],
+    collection: "",
   });
-  
+  const [collections, setCollections] = useState<any[]>([]);
+
   const { uploadToIPFS, isUploading } = useIPFSUpload();
 
-  const handleSoundFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSoundFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
       try {
         const ipfsHash = await uploadToIPFS(file);
-        console.log('Uploaded to IPFS:', ipfsHash);
-        setFormData(prev => ({ ...prev, soundFile: file }));
+        console.log("Uploaded to IPFS:", ipfsHash);
+        setFormData((prev) => ({ ...prev, soundFile: file }));
       } catch (error) {
-        console.error('Upload failed:', error);
+        console.error("Upload failed:", error);
         // Optionally add user-facing error handling
       }
     }
   };
 
   const handleImageUpload = (file: File) => {
-    setFormData(prev => ({ ...prev, image: file }));
+    setFormData((prev) => ({ ...prev, image: file }));
   };
 
-  const handleSelectedGamesChange = (selectedGame: Game| null) => {
-    setFormData(prev => ({ ...prev, gameID: selectedGame?.id.toString() }));
+  const handleSelectedGamesChange = (selectedGame: Game | null) => {
+    setFormData((prev) => ({ ...prev, gameID: selectedGame?.id.toString() }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Add form submission logic
-    console.log('Form submitted:', formData);
+    console.log("Form submitted:", formData);
   };
+
+  const fetchCollections = async () => {
+    try {
+      const data = await getCollection("collections", [
+        { field: "creator", operator: "==", value: auth.currentUser?.uid },
+      ]);
+      console.log(data);
+    } catch (error) {
+      console.error("Fetch collections failed:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCollections();
+  }, []);
 
   return (
     <div className="space-y-8">
-          <div className="grid grid-cols-1 gap-8">
-            <div>
-              <h2 className="text-xl font-bold mb-4">Upload NFT Image</h2>
-              <DraggableBox onDrop={handleImageUpload} image={formData.image} />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold mb-4">Compatible Games</h2>
-              <GameList onSelectedGameChange={handleSelectedGamesChange} />
-            </div>
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="collection">Collection</Label>
+        <CollectionsSelect
+          collections={collections}
+          value={formData.collection}
+          onValueChange={(value) =>
+            setFormData((prev) => ({ ...prev, collection: value }))
+          }
+        />
+      </div>
+      <div className="grid grid-cols-1 gap-8">
+        <div>
+          <h2 className="text-xl font-bold mb-4">Upload NFT Image</h2>
+          <DraggableBox onDrop={handleImageUpload} image={formData.image} />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold mb-4">Compatible Games</h2>
+          <GameList onSelectedGameChange={handleSelectedGamesChange} />
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
@@ -94,7 +127,9 @@ export default function SoundForm() {
           <Input
             id="name"
             value={formData.name}
-            onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, name: e.target.value }))
+            }
             required
           />
         </div>
@@ -103,7 +138,9 @@ export default function SoundForm() {
           <Label htmlFor="soundType">Sound Type</Label>
           <Select
             value={formData.soundType}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, soundType: value }))}
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, soundType: value }))
+            }
             required
           >
             <SelectTrigger>
@@ -122,7 +159,9 @@ export default function SoundForm() {
           <Label htmlFor="license">License</Label>
           <Select
             value={formData.license}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, license: value }))}
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, license: value }))
+            }
             required
           >
             <SelectTrigger>
@@ -141,7 +180,9 @@ export default function SoundForm() {
           <Textarea
             id="description"
             value={formData.description}
-            onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, description: e.target.value }))
+            }
             required
           />
         </div>
@@ -151,7 +192,9 @@ export default function SoundForm() {
           <Input
             id="duration"
             value={formData.duration}
-            onChange={e => setFormData(prev => ({ ...prev, duration: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, duration: e.target.value }))
+            }
             required
           />
         </div>
@@ -161,7 +204,9 @@ export default function SoundForm() {
           <Input
             id="composer"
             value={formData.composer}
-            onChange={e => setFormData(prev => ({ ...prev, composer: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, composer: e.target.value }))
+            }
             required
           />
         </div>
@@ -177,15 +222,14 @@ export default function SoundForm() {
           />
         </div>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full bg-orange-500 hover:bg-orange-600"
           disabled={isUploading}
         >
-          {isUploading ? 'Uploading...' : 'Create Sound NFT'}
+          {isUploading ? "Uploading..." : "Create Sound NFT"}
         </Button>
       </form>
     </div>
   );
 }
-

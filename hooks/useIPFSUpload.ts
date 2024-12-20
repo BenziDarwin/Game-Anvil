@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 export const useIPFSUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -9,14 +9,14 @@ export const useIPFSUpload = () => {
   const uploadToIPFS = async (file: File): Promise<string> => {
     setIsUploading(true);
     setError(null);
-    
+
     try {
       // Mock IPFS upload - In production, implement actual IPFS upload
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const mockIPFSHash = `ipfs://Qm${Math.random().toString(36).substring(2, 15)}`;
       return mockIPFSHash;
     } catch (err) {
-      setError('Failed to upload to IPFS');
+      setError("Failed to upload to IPFS");
       throw err;
     } finally {
       setIsUploading(false);

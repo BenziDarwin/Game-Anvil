@@ -1,34 +1,37 @@
-'use client';
+"use client";
 
-import { Card } from '@/components/ui/card';
-import { Heart, Share2 } from 'lucide-react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { Card } from "@/components/ui/card";
+import { Heart, Share2 } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const trendingNFTs = [
   {
     id: 1,
-    title: 'Cosmic Dreamer #123',
-    creator: 'CryptoArtist',
-    price: '2.5 ETH',
-    image: 'https://images.unsplash.com/photo-1634973357973-f2ed2657db3c?w=500&h=500&fit=crop',
+    title: "Cosmic Dreamer #123",
+    creator: "CryptoArtist",
+    price: "2.5 ETH",
+    image:
+      "https://images.unsplash.com/photo-1634973357973-f2ed2657db3c?w=500&h=500&fit=crop",
     likes: 234,
   },
   {
     id: 2,
-    title: 'Digital Genesis #045',
-    creator: 'NFTMaster',
-    price: '1.8 ETH',
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&h=500&fit=crop',
+    title: "Digital Genesis #045",
+    creator: "NFTMaster",
+    price: "1.8 ETH",
+    image:
+      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&h=500&fit=crop",
     likes: 189,
   },
   {
     id: 3,
-    title: 'Abstract Reality #678',
-    creator: 'DigitalDreams',
-    price: '3.2 ETH',
-    image: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=500&h=500&fit=crop',
+    title: "Abstract Reality #678",
+    creator: "DigitalDreams",
+    price: "3.2 ETH",
+    image:
+      "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=500&h=500&fit=crop",
     likes: 342,
   },
 ];
@@ -37,7 +40,10 @@ export default function TrendingNFTs() {
   const router = useRouter();
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>, id: number) => {
+  const handleMouseMove = (
+    event: React.MouseEvent<HTMLDivElement>,
+    id: number,
+  ) => {
     const card = event.currentTarget;
     const rect = card.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -54,7 +60,8 @@ export default function TrendingNFTs() {
 
   const handleMouseLeave = (event: React.MouseEvent<HTMLDivElement>) => {
     const card = event.currentTarget;
-    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+    card.style.transform =
+      "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
     setHoveredCard(null);
   };
 
@@ -67,8 +74,8 @@ export default function TrendingNFTs() {
             key={nft.id}
             className="overflow-hidden transition-all duration-300 ease-out"
             style={{
-              transformStyle: 'preserve-3d',
-              transform: hoveredCard === nft.id ? 'translateZ(20px)' : 'none',
+              transformStyle: "preserve-3d",
+              transform: hoveredCard === nft.id ? "translateZ(20px)" : "none",
             }}
             onMouseEnter={() => setHoveredCard(nft.id)}
             onMouseMove={(e) => handleMouseMove(e, nft.id)}
@@ -97,7 +104,9 @@ export default function TrendingNFTs() {
               </div>
               <p className="text-sm text-gray-600 mb-2">by {nft.creator}</p>
               <div className="flex justify-between items-center">
-                <span className="text-orange-500 font-semibold">{nft.price}</span>
+                <span className="text-orange-500 font-semibold">
+                  {nft.price}
+                </span>
                 <span className="text-sm text-gray-500">{nft.likes} likes</span>
               </div>
             </div>
@@ -107,4 +116,3 @@ export default function TrendingNFTs() {
     </section>
   );
 }
-

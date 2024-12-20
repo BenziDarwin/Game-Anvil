@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { cn } from '@/lib/utils';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Hammer } from 'lucide-react';
-import { auth } from '@/firebase/config';
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Hammer } from "lucide-react";
+import { auth } from "@/firebase/config";
 
 const routes = [
   {
-    href: '/explore',
-    label: 'Explore',
-  }
+    href: "/explore",
+    label: "Explore",
+  },
 ];
 
 export default function MainNav() {
@@ -30,27 +30,29 @@ export default function MainNav() {
             key={route.href}
             href={route.href}
             className={cn(
-              'text-sm font-medium transition-colors hover:text-orange-500',
+              "text-sm font-medium transition-colors hover:text-orange-500",
               pathname === route.href
-                ? 'text-orange-500'
-                : 'text-muted-foreground'
+                ? "text-orange-500"
+                : "text-muted-foreground",
             )}
           >
             {route.label}
           </Link>
         ))}
-        {auth.currentUser ? <Link
-            key='/profile'
+        {auth.currentUser ? (
+          <Link
+            key="/profile"
             href="/profile"
             className={cn(
-              'text-sm font-medium transition-colors hover:text-orange-500',
+              "text-sm font-medium transition-colors hover:text-orange-500",
               pathname === "/profile"
-                ? 'text-orange-500'
-                : 'text-muted-foreground'
+                ? "text-orange-500"
+                : "text-muted-foreground",
             )}
           >
             Profile
-          </Link>:null }
+          </Link>
+        ) : null}
       </nav>
     </div>
   );

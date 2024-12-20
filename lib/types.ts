@@ -12,7 +12,7 @@ export interface NFT {
   created: string;
 }
 
-export type GameCategory = 'skins' | 'mods' | 'sounds' | 'items';
+export type GameCategory = "skins" | "mods" | "sounds" | "items";
 
 export interface Collector {
   id: string;

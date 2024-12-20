@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import NFTForms from '@/components/NFTForms'
-import { AppSidebar } from '@/components/Profile/SideBar'
-import { Button } from '@/components/ui/button'
+import NFTForms from "@/components/NFTForms";
+import { AppSidebar } from "@/components/Profile/SideBar";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,41 +11,79 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { SidebarProvider } from '@/components/ui/sidebar'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import GameNFT from '@/contracts/GameNFT.json'
-import { deployContract } from '@/utils/ethereum'
-import { ethers } from 'ethers'
-import { useState } from 'react'
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import GameNFT from "@/contracts/GameNFT.json";
+import { deployContract } from "@/utils/ethereum";
+import { ethers } from "ethers";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import HammerLoader from "@/components/Loader";
+import { addDocument } from "@/firebase/firestore";
 
 export default function Page() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [error, setError] = useState<string | null>(null) // State to store the error message
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null); // State to store the error message
+  const { currentUser, loading } = useAuth();
+  const router = useRouter();
 
-  const handleCreateCollection = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-    const symbol = formData.get('symbol') as string
-    const name = formData.get('name') as string
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      router.push("/auth/login");
+    }
+  }, [currentUser, loading]);
+
+  if (loading) return <HammerLoader />;
+  if (!currentUser) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Unauthorized - Redirecting to login...</div>
+      </div>
+    );
+  }
+
+  const handleCreateCollection = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const symbol = formData.get("symbol") as string;
+    const name = formData.get("name") as string;
     try {
       // Deploy the contract
       const private_key = process.env.NEXT_PUBLIC_PRIVATE_KEY;
-      const trans = await deployContract(private_key!, GameNFT.abi as ethers.InterfaceAbi, GameNFT.bytecode, "http://127.0.0.1:7545", [name, symbol]);
-      console.log(trans);
+      const contract = await deployContract(
+        private_key!,
+        GameNFT.abi,
+        GameNFT.bytecode,
+        "http://127.0.0.1:7545",
+        [name, symbol],
+      );
+      await addDocument("collections", {
+        name,
+        symbol,
+        address: contract.getAddress(),
+        creator: currentUser.uid,
+        chain: contract.deploymentTransaction()?.chainId,
+        createdAt: new Date().toISOString(),
+      });
     } catch (error) {
-      console.error(error)
-      setError('An error occurred while deploying the contract. Please try again.') // Set error message
+      console.error(error);
+      setError(
+        "An error occurred while deploying the contract. Please try again.",
+      ); // Set error message
 
       // Set a timeout to clear the error after 5 seconds
       setTimeout(() => {
-        setError(null)
-      }, 5000)
+        setError(null);
+      }, 5000);
     }
-    setIsDialogOpen(false)
-  }
+    setIsDialogOpen(false);
+  };
 
   return (
     <SidebarProvider>
@@ -114,5 +152,5 @@ export default function Page() {
         </main>
       </div>
     </SidebarProvider>
-  )
+  );
 }

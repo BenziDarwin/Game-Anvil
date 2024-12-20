@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useChain } from "@/context/ChainContext";
 
@@ -19,4 +19,3 @@ export default function CurrentChainDisplay() {
     </div>
   );
 }
-

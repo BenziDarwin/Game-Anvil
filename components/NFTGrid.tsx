@@ -1,41 +1,43 @@
-'use client';
+"use client";
 
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Heart, Share2 } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { NFT } from '@/lib/types';
-import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Heart, Share2 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { NFT } from "@/lib/types";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 // Mock data - In a real app, this would come from an API
 const nfts: NFT[] = [
   {
     id: 1,
-    title: 'Dragon Slayer Skin',
-    description: 'Legendary skin for the Dragon Slayer class',
-    creator: 'GameMaster',
-    creatorId: '1',
-    price: '0.5 ETH',
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&h=500&fit=crop',
+    title: "Dragon Slayer Skin",
+    description: "Legendary skin for the Dragon Slayer class",
+    creator: "GameMaster",
+    creatorId: "1",
+    price: "0.5 ETH",
+    image:
+      "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&h=500&fit=crop",
     likes: 123,
-    category: 'skins',
-    game: 'Dragon Quest Online',
-    created: '2024-01-15',
+    category: "skins",
+    game: "Dragon Quest Online",
+    created: "2024-01-15",
   },
   {
     id: 2,
-    title: 'Dragon Slayer Skin',
-    description: 'Legendary skin for the Dragon Slayer class',
-    creator: 'GameMaster',
-    creatorId: '1',
-    price: '0.5 ETH',
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&h=500&fit=crop',
+    title: "Dragon Slayer Skin",
+    description: "Legendary skin for the Dragon Slayer class",
+    creator: "GameMaster",
+    creatorId: "1",
+    price: "0.5 ETH",
+    image:
+      "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&h=500&fit=crop",
     likes: 123,
-    category: 'skins',
-    game: 'Dragon Quest Online',
-    created: '2024-01-15',
+    category: "skins",
+    game: "Dragon Quest Online",
+    created: "2024-01-15",
   },
   // Add more mock NFTs...
 ];
@@ -45,16 +47,18 @@ interface NFTGridProps {
 }
 
 export default function NFTGrid({ category }: NFTGridProps) {
-  const filteredNFTs = category === 'all' 
-    ? nfts 
-    : nfts.filter(nft => nft.category === category);
-  
+  const filteredNFTs =
+    category === "all" ? nfts : nfts.filter((nft) => nft.category === category);
+
   const router = useRouter();
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
+  const handleMouseMove = (
+    event: React.MouseEvent<HTMLDivElement>,
+    index: number,
+  ) => {
     const card = cardRefs.current[index];
     if (!card) return;
 
@@ -75,7 +79,7 @@ export default function NFTGrid({ category }: NFTGridProps) {
         rotateY(${rotateY}deg) 
         scale3d(1.03, 1.03, 1.03)
       `;
-      card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.12)';
+      card.style.boxShadow = "0 10px 20px rgba(0,0,0,0.12)";
     });
   };
 
@@ -84,25 +88,26 @@ export default function NFTGrid({ category }: NFTGridProps) {
     if (!card) return;
 
     requestAnimationFrame(() => {
-      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-      card.style.boxShadow = 'none';
+      card.style.transform =
+        "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
+      card.style.boxShadow = "none";
     });
-    
+
     setHoveredCard(null);
   };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {filteredNFTs.map((nft, index) => (
-        <Card 
+        <Card
           key={nft.id}
-          ref={el => {
+          ref={(el) => {
             cardRefs.current[index] = el;
           }}
           className="overflow-hidden transition-all duration-200 ease-out"
           style={{
-            transformStyle: 'preserve-3d',
-            transition: 'transform 0.2s ease-out, box-shadow 0.2s ease-out',
+            transformStyle: "preserve-3d",
+            transition: "transform 0.2s ease-out, box-shadow 0.2s ease-out",
           }}
           onMouseEnter={() => setHoveredCard(nft.id)}
           onMouseMove={(e) => handleMouseMove(e, index)}
