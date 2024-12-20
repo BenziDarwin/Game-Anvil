@@ -40,8 +40,8 @@ export default function MainNav() {
           </Link>
         ))}
         {auth.currentUser ? <Link
-            key={'/profile'}
-            href={"/profile"}
+            key='/profile'
+            href="/profile"
             className={cn(
               'text-sm font-medium transition-colors hover:text-orange-500',
               pathname === "/profile"
@@ -49,7 +49,7 @@ export default function MainNav() {
                 : 'text-muted-foreground'
             )}
           >
-            {'Profile'}
+            'Profile'
           </Link>:null }
       </nav>
     </div>

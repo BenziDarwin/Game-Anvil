@@ -69,6 +69,7 @@ export default function Navbar() {
                 {showChainSelector && (
                   <ChainSelector selectedChain={state.currentChain} onChainChange={handleChainChange} />
                 )}
+                {auth.currentUser? <>
                 <Link href="/profile">
                   <Button variant="link" className="text-gray-900 hover:text-blue-500 flex items-center gap-2">
                     <User className="h-4 w-4" />
@@ -86,7 +87,8 @@ export default function Navbar() {
                     <Settings className="h-4 w-4" />
                     Settings
                   </Button>
-                </Link>
+                </Link></>
+                  :null}
               </nav>
               {auth.currentUser?    
           <Button variant={'outline'} className={'w-full'} onClick={() => {
