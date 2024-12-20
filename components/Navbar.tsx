@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Chain, ethereumChains, useChain } from "@/context/ChainContext";
+import { signOutUser } from '@/firebase/auth';
+import { auth } from '@/firebase/config';
 import { Coins, Menu, Paintbrush, Settings, User } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import MainNav from './MainNav';
 import UserMenu from './UserMenu';
@@ -18,6 +20,7 @@ export default function Navbar() {
   const { state, dispatch } = useChain();
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const showChainSelector = CHAIN_SELECTOR_PATHS.includes(pathname);
 
@@ -47,7 +50,12 @@ export default function Navbar() {
             {showChainSelector && (
               <ChainSelector selectedChain={state.currentChain} onChainChange={handleChainChange} />
             )}
-            <UserMenu />
+            {auth.currentUser?      <Button variant={'outline'} className={'w-full'} onClick={() => {
+            signOutUser();
+            router.push('/');
+            }}>
+            Log out
+          </Button> : <UserMenu />}
           </div>
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
@@ -80,7 +88,14 @@ export default function Navbar() {
                   </Button>
                 </Link>
               </nav>
-              <UserMenu />
+              {auth.currentUser?    
+          <Button variant={'outline'} className={'w-full'} onClick={() => {
+            signOutUser();
+            router.push('/');
+            }}>
+            Log out
+          </Button>
+        : <UserMenu />}
             </SheetContent>
           </Sheet>
         </div>

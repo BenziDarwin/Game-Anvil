@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Hammer } from 'lucide-react';
+import { auth } from '@/firebase/config';
 
 const routes = [
   {
@@ -38,6 +39,18 @@ export default function MainNav() {
             {route.label}
           </Link>
         ))}
+        {auth.currentUser ? <Link
+            key={'/profile'}
+            href={"/profile"}
+            className={cn(
+              'text-sm font-medium transition-colors hover:text-orange-500',
+              pathname === "/profile"
+                ? 'text-orange-500'
+                : 'text-muted-foreground'
+            )}
+          >
+            {'Profile'}
+          </Link>:null }
       </nav>
     </div>
   );

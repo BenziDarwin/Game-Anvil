@@ -1,0 +1,21 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA2Ww7bW_FiZgQ3gkHbe-yanTOsf2qZL44",
+  authDomain: "game-anvil-79345.firebaseapp.com",
+  projectId: "game-anvil-79345",
+  storageBucket: "game-anvil-79345.firebasestorage.app",
+  messagingSenderId: "450167805500",
+  appId: "1:450167805500:web:2feb9b9b0b93f488b15539",
+  measurementId: "G-KYEQ49322B"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+export const auth = getAuth(app);
+
+export default app;
