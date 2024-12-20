@@ -5,7 +5,8 @@ import UserMenu from './UserMenu';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getCurrentChain } from "@/utils/ethereum";
 
 const ethereumChains = [
   { id: 1, name: 'Ethereum Mainnet' },
@@ -16,9 +17,22 @@ const ethereumChains = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedChain, setSelectedChain] = useState(ethereumChains[0].id);
+  const [selectedChain, setSelectedChain] = useState<number | null>(null);
 
-  const handleChainChange = async (event:any) => {
+  // Use effect to set the initial selected chain based on the current chain
+  useEffect(() => {
+    const fetchCurrentChain = async () => {
+      const chainId = await getCurrentChain();
+      if (chainId) {
+        setSelectedChain(chainId);
+      }
+    };
+
+    fetchCurrentChain();
+  }, []); // Run this effect once when the component mounts
+
+  // Handle chain change
+  const handleChainChange = async (event: any) => {
     const chainId = parseInt(event.target.value, 10);
     setSelectedChain(chainId);
 
@@ -46,8 +60,9 @@ export default function Navbar() {
             {/* Dropdown for Chain Selection */}
             <select
               className="border rounded-md px-2 py-1 bg-background text-foreground"
-              value={selectedChain}
+              value={selectedChain || ''}
               onChange={handleChainChange}
+              disabled={selectedChain === null}
             >
               {ethereumChains.map((chain) => (
                 <option key={chain.id} value={chain.id}>
@@ -69,8 +84,9 @@ export default function Navbar() {
                 {/* Dropdown for Chain Selection in Mobile View */}
                 <select
                   className="border rounded-md px-2 py-1 bg-background text-foreground"
-                  value={selectedChain}
+                  value={selectedChain || ''}
                   onChange={handleChainChange}
+                  disabled={selectedChain === null}
                 >
                   {ethereumChains.map((chain) => (
                     <option key={chain.id} value={chain.id}>
