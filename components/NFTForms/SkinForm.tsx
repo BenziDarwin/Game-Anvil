@@ -88,6 +88,7 @@ export default function SkinForm() {
         { field: "creator", operator: "==", value: auth.currentUser?.uid },
       ]);
       console.log(data);
+      setCollections(data);
     } catch (error) {
       console.error("Fetch collections failed:", error);
     }

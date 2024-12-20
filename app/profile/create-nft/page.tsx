@@ -63,14 +63,17 @@ export default function Page() {
         "http://127.0.0.1:7545",
         [name, symbol],
       );
-      await addDocument("collections", {
+      const address = await contract.getAddress();
+      const chain = Number(contract.deploymentTransaction()?.chainId || null);
+      const documentData = {
         name,
         symbol,
-        address: contract.getAddress(),
+        address,
         creator: currentUser.uid,
-        chain: contract.deploymentTransaction()?.chainId,
+        chain: chain,
         createdAt: new Date().toISOString(),
-      });
+      };
+      await addDocument("collections", documentData);
     } catch (error) {
       console.error(error);
       setError(

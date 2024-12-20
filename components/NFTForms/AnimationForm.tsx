@@ -63,6 +63,7 @@ export default function AnimationForm() {
         { field: "creator", operator: "==", value: auth.currentUser?.uid },
       ]);
       console.log(data);
+      setCollections(data);
     } catch (error) {
       console.error("Fetch collections failed:", error);
     }
