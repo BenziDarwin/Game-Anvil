@@ -49,7 +49,7 @@ export default function MainNav() {
                 : 'text-muted-foreground'
             )}
           >
-            'Profile'
+            Profile
           </Link>:null }
       </nav>
     </div>
