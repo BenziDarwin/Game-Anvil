@@ -45,3 +45,4 @@ Java HotSpot(TM) 64-Bit Server VM (build 21.0.5+9-LTS-239, mixed mode, sharing)
 
 Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
  
+[debug] [2025-01-08T08:03:56.921Z] Received signal SIGHUP 1

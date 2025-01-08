@@ -1,7 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -9,29 +18,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
-import { GameList } from "../GameList";
-import CollectionsSelect from "./CollectionSelect";
-import { DraggableBox } from "../DraggableBox";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { getCollection } from "@/firebase/firestore";
 import { auth } from "@/firebase/config";
+import { getCollection } from "@/firebase/firestore";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { DraggableBox } from "../DraggableBox";
+import CollectionsSelect from "./CollectionSelect";
 
 interface FormData {
   name: string;
   description: string;
   image: string;
-  game: string;
   collectionAddress: string;
   file: { path: string; key: Uint8Array };
   collection: string;
@@ -75,7 +73,6 @@ const NftForm = () => {
     name: "",
     description: "",
     image: "",
-    game: "",
     collectionAddress: "",
     file: { path: "", key: new Uint8Array() },
     collection: "",
@@ -135,12 +132,6 @@ const NftForm = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSelectedGamesChange = (
-    selectedGame: { id: number; name: string } | null,
-  ) => {
-    setFormData((prev) => ({ ...prev, game: selectedGame?.name || "" }));
   };
 
   const addDynamicField = () => {
@@ -226,10 +217,6 @@ const NftForm = () => {
                     }))
                   }
                 />
-              </div>
-              <div>
-                <Label>Compatible Game</Label>
-                <GameList onSelectedGameChange={handleSelectedGamesChange} />
               </div>
               <div>
                 <Label htmlFor="nftType">NFT Type</Label>
