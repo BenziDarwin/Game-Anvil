@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -23,6 +23,9 @@ import { DraggableBox } from "../DraggableBox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { getCollection } from "@/firebase/firestore";
+import { auth } from "@/firebase/config";
 
 interface FormData {
   name: string;
@@ -95,6 +98,32 @@ const NftForm = () => {
     }
   };
 
+  const fetchCollections = async () => {
+    try {
+      let currentUser = auth.currentUser;
+      if (!currentUser) {
+        return;
+      }
+      let collections = await getCollection("collections", [
+        { field: "creator", operator: "==", value: currentUser.uid },
+      ]);
+      setCollections(
+        collections.map((doc: any) => ({
+          address: doc.address,
+          name: doc.name,
+          symbol: doc.symbol,
+        })),
+      );
+    } catch (error) {
+      console.error("Error fetching collections:", error);
+      toast.error("Error fetching collections");
+    }
+  };
+
+  useEffect(() => {
+    fetchCollections();
+  }, [collections]);
+
   const handleImageUpload = async (file: File) => {
     setLoading(true);
     try {
@@ -153,7 +182,7 @@ const NftForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full mx-auto">
       <CardHeader>
         <CardTitle>Create NFT</CardTitle>
         <CardDescription>

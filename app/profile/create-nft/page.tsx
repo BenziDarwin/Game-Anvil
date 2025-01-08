@@ -1,7 +1,9 @@
 "use client";
 
+import HammerLoader from "@/components/Loader";
 import NFTForms from "@/components/NFTForms";
 import { AppSidebar } from "@/components/Profile/SideBar";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,15 +17,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import GameNFT from "@/contracts/GameNFT.json";
-import { deployContract } from "@/utils/ethereum";
-import { ethers } from "ethers";
-import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import HammerLoader from "@/components/Loader";
+import GameNFT from "@/contracts/GameNFT.json";
 import { addDocument } from "@/firebase/firestore";
+import { deployContract } from "@/utils/ethereum";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Page() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -90,10 +89,10 @@ export default function Page() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen overflow-hidden">
+      <div className="flex h-screen overflow-hidden w-full">
         <AppSidebar />
         <main className="flex-1 overflow-y-auto bg-background p-8">
-          <div className="max-w-4xl mx-auto">
+          <div className="mx-auto">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-bold">NFT Dashboard</h1>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
