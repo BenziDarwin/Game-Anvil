@@ -25,6 +25,10 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { DraggableBox } from "../DraggableBox";
 import CollectionsSelect from "./CollectionSelect";
+import { useIPFSUpload } from "@/hooks/useIPFSUpload";
+import { getEthereumContract } from "@/utils/ethereum";
+import GameNFT from "@/contracts/GameNFT.json";
+import { ethers } from "ethers";
 
 interface FormData {
   name: string;
@@ -82,15 +86,17 @@ const NftForm = () => {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const { uploadToIPFS, uploadToIPFSNoEncryption } = useIPFSUpload();
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setImageFile(file);
       // Simulating file upload, replace with actual upload logic
+      let { ipfs, key } = await uploadToIPFS(file);
       setFormData((prev) => ({
         ...prev,
-        file: { path: URL.createObjectURL(file), key: new Uint8Array() },
+        file: { path: ipfs.cid + "File", key: new Uint8Array() },
       }));
     }
   };
@@ -124,9 +130,9 @@ const NftForm = () => {
   const handleImageUpload = async (file: File) => {
     setLoading(true);
     try {
-      // Simulating image upload, replace with actual upload logic
-      const imageUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({ ...prev, image: imageUrl }));
+      let hash = await uploadToIPFSNoEncryption(file);
+
+      setFormData((prev) => ({ ...prev, image: hash }));
     } catch (error) {
       console.error("Upload failed:", error);
     } finally {
@@ -168,8 +174,61 @@ const NftForm = () => {
     e.preventDefault();
     setLoading(true);
     // Add form submission logic here
+    let data = {
+      meta: formData.dynamicFields,
+      image: formData.image,
+      file: formData.file.path,
+      description: formData.description,
+      type: formData.nftType,
+    };
+    try {
+      // Convert the data to a file
+      const jsonData = JSON.stringify(data, null, 2); // Format for readability
+      const blob = new Blob([jsonData], { type: "application/json" });
+
+      // Create a file-like object (e.g., for upload)
+      const file = new File([blob], "formData.json", {
+        type: "application/json",
+      });
+
+      const hash = await uploadToIPFSNoEncryption(file);
+
+      await createNFT(hash, formData.collection, "0.05");
+    } catch (e) {}
     console.log("Form submitted:", formData);
     setLoading(false);
+  };
+
+  const createNFT = async (
+    tokenURI: string,
+    contractAddress: string,
+    creationFee: string, // Pass the required creation fee
+  ) => {
+    try {
+      // Fetch the contract ABI and create the contract instance
+      let abi = GameNFT.abi;
+      let contract = await getEthereumContract(contractAddress, abi);
+
+      // Call the createNFT function with the tokenURI and send the creation fee
+      const transaction = await contract.createNFT(tokenURI, {
+        value: ethers.parseEther(creationFee), // Convert fee to wei
+      });
+
+      // Wait for the transaction to be confirmed
+      const receipt = await transaction.wait();
+
+      console.log("NFT Created Successfully!", receipt);
+
+      // Extract the new token ID from the emitted event (if needed)
+      const event = receipt.events?.find((e: any) => e.event === "NFTCreated");
+      const tokenId = event?.args?.[0]; // Assuming the first argument is the token ID
+
+      console.log("New Token ID:", tokenId);
+      return tokenId;
+    } catch (error) {
+      console.error("Error creating NFT:", error);
+      throw error;
+    }
   };
 
   return (

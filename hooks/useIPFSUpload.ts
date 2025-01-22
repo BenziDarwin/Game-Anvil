@@ -82,5 +82,26 @@ export const useIPFSUpload = () => {
     }
   };
 
-  return { uploadToIPFS, isUploading, error };
+  const uploadToIPFSNoEncryption = async (file: File): Promise<string> => {
+    setIsUploading(true);
+    setError(null);
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+
+      //const ipfsResponse = await ipfsUpload(arrayBuffer);
+      const ipfsResponse = "Your plain hash";
+
+      return ipfsResponse;
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to upload to IPFS";
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return { uploadToIPFS, uploadToIPFSNoEncryption, isUploading, error };
 };

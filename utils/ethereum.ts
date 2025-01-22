@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 export async function getEthereumContract(
   contractAddress: string,
   contractABI: ethers.InterfaceAbi,
-) {
+): Promise<ethers.Contract> {
   if (typeof window.ethereum !== "undefined") {
     await window.ethereum.request({ method: "eth_requestAccounts" });
     const provider = new ethers.BrowserProvider(window.ethereum);
