@@ -176,7 +176,7 @@ const NftForm = () => {
     // Add form submission logic here
     let data = {
       meta: formData.dynamicFields,
-      image: formData.image,
+      image: `https://dweb.link/ipfs/${formData.image}`,
       file: formData.file.path,
       description: formData.description,
       type: formData.nftType,
@@ -193,7 +193,11 @@ const NftForm = () => {
 
       const hash = await uploadToIPFSNoEncryption(file);
 
-      await createNFT(hash, formData.collection, "0.05");
+      await createNFT(
+        `https://dweb.link/ipfs/${hash}`,
+        formData.collection,
+        "0.05",
+      );
     } catch (e) {}
     console.log("Form submitted:", formData);
     setLoading(false);
