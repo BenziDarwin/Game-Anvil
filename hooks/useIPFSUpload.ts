@@ -11,8 +11,9 @@ export const useIPFSUpload = () => {
   const initializeClient = async () => {
     const client = await create();
     const account = await client.login("ssalibenjamin0402@gmail.com");
-    const space = await client.createSpace("GameAnvil", { account });
-    await client.setCurrentSpace(space.did());
+    await client.setCurrentSpace(
+      process.env.NEXT_PUBLIC_IPFS_SPACE! as `did:${string}:${string}`,
+    );
     await account.plan.wait();
     return { client, account };
   };
