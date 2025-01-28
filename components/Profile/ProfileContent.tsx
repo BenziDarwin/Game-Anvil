@@ -8,8 +8,6 @@ import { User } from "@/lib/types/user";
 import { Layers, Users2, Wallet } from "lucide-react";
 
 export default function ProfileContent({ user }: { user: User }) {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -65,29 +63,24 @@ export default function ProfileContent({ user }: { user: User }) {
       </div>
 
       <Tabs defaultValue="collected" className="space-y-8">
-        <TabsList className="bg-white shadow-md rounded-lg p-1">
+        <TabsList className="shadow-md rounded-lg p-1 bg-transparent">
           <TabsTrigger value="collected" className="rounded-md px-4 py-2">
             Collected
           </TabsTrigger>
           <TabsTrigger value="created" className="rounded-md px-4 py-2">
             Created
           </TabsTrigger>
-          <TabsTrigger value="activity" className="rounded-md px-4 py-2">
-            Activity
-          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="collected" className="bg-white rounded-lg p-6">
-          <NFTGrid category={selectedCategory} />
+        <TabsContent
+          value="collected"
+          className="rounded-lg p-6 bg-transparent"
+        >
+          <NFTGrid category="collected" />
         </TabsContent>
 
-        <TabsContent value="created" className="bg-white  rounded-lg p-6">
-          <NFTGrid category={selectedCategory} />
-        </TabsContent>
-
-        <TabsContent value="activity" className="bg-white rounded-lg p-6">
-          {/* Add an activity feed component here */}
-          <p className="text-gray-600">User activity feed coming soon...</p>
+        <TabsContent value="created" className="rounded-lg p-6 bg-transparent">
+          <NFTGrid category="created" />
         </TabsContent>
       </Tabs>
     </div>

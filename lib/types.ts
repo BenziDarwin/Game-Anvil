@@ -1,18 +1,23 @@
 export interface NFT {
-  id: number;
+  id?: number;
   title: string;
   description: string;
   creator: string;
-  creatorId: string;
   price: string;
   image: string;
-  likes: number;
-  category: GameCategory;
-  game: string;
+  category: NFTCategory;
+  collection: string;
   created: string;
 }
 
-export type GameCategory = "skins" | "mods" | "sounds" | "items";
+type NFTCategory =
+  | "skins"
+  | "mods"
+  | "sounds"
+  | "items"
+  | "art"
+  | "maps"
+  | "animations";
 
 export interface Collector {
   id: string;

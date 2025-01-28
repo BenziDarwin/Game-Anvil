@@ -88,7 +88,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
       </div>
 
       {/* Profile Content */}
-      <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="max-w-7xl mx-auto px-8 py-8 bg-transparent">
         <Tabs defaultValue="collected">
           <TabsList>
             <TabsTrigger value="collected">Collected</TabsTrigger>

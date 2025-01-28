@@ -4,35 +4,25 @@ import { create } from "@web3-storage/w3up-client";
 import { useState } from "react";
 import { encryptFile, generateKey } from "@/actions/encryptFile";
 
-interface IPFSResponse {
-  cid: string;
-  size: number;
-}
-
 export const useIPFSUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const initializeClient = async () => {
     const client = await create();
-    const account = await client.login("your-email@example.com"); // Replace with your email
-    await account.plan.wait(); // Wait for a payment plan to be selected
-    return client;
+    const account = await client.login("ssalibenjamin0402@gmail.com");
+    const space = await client.createSpace("GameAnvil", { account });
+    await client.setCurrentSpace(space.did());
+    await account.plan.wait();
+    return { client, account };
   };
 
-  const ipfsUpload = async (file: File): Promise<IPFSResponse> => {
-    const client = await initializeClient();
-    const account = await client.login("ssalibenjamin0402@gmail.com"); // Replace with your email
-    const space = await client.createSpace("GameAnvil", { account });
-
+  const ipfsUpload = async (file: File): Promise<string> => {
+    const { client } = await initializeClient();
     try {
       const cid = await client.uploadFile(file);
       console.log("Uploaded file CID:", cid);
-
-      return {
-        cid: cid.toString(),
-        size: 0, // Size is not directly available in w3up-client
-      };
+      return cid.toString();
     } catch (err) {
       console.error("Upload error:", err);
       throw new Error("Failed to upload to IPFS");
@@ -41,7 +31,7 @@ export const useIPFSUpload = () => {
 
   const uploadToIPFS = async (
     file: File,
-  ): Promise<{ ipfs: IPFSResponse; key: Uint8Array }> => {
+  ): Promise<{ ipfs: string; key: Uint8Array }> => {
     setIsUploading(true);
     setError(null);
 
@@ -67,7 +57,7 @@ export const useIPFSUpload = () => {
 
     try {
       const ipfsResponse = await ipfsUpload(file);
-      return ipfsResponse.cid;
+      return ipfsResponse;
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to upload to IPFS";

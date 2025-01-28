@@ -6,6 +6,7 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  getDoc, // Import getDoc
   query,
   setDoc,
   updateDoc,
@@ -13,6 +14,9 @@ import {
 } from "firebase/firestore";
 import { db } from "../config";
 
+/**
+ * Fetches all documents from a Firestore collection with optional filters.
+ */
 export async function getCollection<T = DocumentData>(
   collectionName: string,
   filters: Array<{ field: string; operator: WhereFilterOp; value: any }> = [],
@@ -25,8 +29,32 @@ export async function getCollection<T = DocumentData>(
   });
 
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map((doc) => doc.data() as T);
+  return querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }) as T);
 }
+
+/**
+ * Fetches a single document by its ID from a Firestore collection.
+ */
+export async function getDocumentById<T = DocumentData>(
+  collectionName: string,
+  docId: string,
+): Promise<T | null> {
+  const docRef = doc(db, collectionName, docId);
+  const docSnapshot = await getDoc(docRef);
+
+  if (docSnapshot.exists()) {
+    return { ...docSnapshot.data(), id: docSnapshot.id } as T;
+  } else {
+    console.warn(
+      `Document with ID ${docId} not found in collection ${collectionName}`,
+    );
+    return null;
+  }
+}
+
+/**
+ * Adds a new document to a Firestore collection.
+ */
 export async function addDocument<T extends DocumentData>(
   collectionName: string,
   data: T,
@@ -35,6 +63,9 @@ export async function addDocument<T extends DocumentData>(
   await addDoc(colRef, data);
 }
 
+/**
+ * Updates an existing document in a Firestore collection.
+ */
 export async function updateDocument<T = DocumentData>(
   collectionName: string,
   docId: string,
@@ -44,6 +75,9 @@ export async function updateDocument<T = DocumentData>(
   await updateDoc(docRef, data);
 }
 
+/**
+ * Sets a document in a Firestore collection, creating it if it doesn't exist.
+ */
 export async function setDocument<T extends DocumentData>(
   collectionName: string,
   docId: string,
@@ -53,6 +87,9 @@ export async function setDocument<T extends DocumentData>(
   await setDoc(docRef, data);
 }
 
+/**
+ * Deletes a document from a Firestore collection.
+ */
 export async function deleteDocument(
   collectionName: string,
   docId: string,

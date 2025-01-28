@@ -15,7 +15,6 @@ import {
 
 export default function ExplorePage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
-
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto">
