@@ -9,16 +9,16 @@ import {
   Edit,
 } from "lucide-react";
 import Link from "next/link";
-import { User } from "@/lib/types/user";
+import { UserData } from "@/lib/types/user";
 
-export default function ProfileHeader({ user }: { user: User }) {
+export default function ProfileHeader({ user }: { user: UserData }) {
   return (
     <div className="bg-orange-500 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col md:flex-row items-center gap-8">
           <Avatar className="w-40 h-40 border-4 border-white rounded-full overflow-hidden">
             <img
-              src={user.avatar}
+              src={user.name}
               alt={user.name}
               className="w-full h-full object-cover"
             />
@@ -34,7 +34,7 @@ export default function ProfileHeader({ user }: { user: User }) {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                <span>{user.followers} followers</span>
+                <span>{100} followers</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />

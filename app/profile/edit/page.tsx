@@ -8,31 +8,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
-import { User } from "@/lib/types/user";
+import { UserData } from "@/lib/types/user";
 import { useAuth } from "@/context/AuthContext";
 import HammerLoader from "@/components/Loader";
 
 // In a real app, you'd fetch the user data here
-const mockUser: User = {
+const mockUser: UserData = {
   id: "1",
   name: "GameMaster",
-  avatar:
-    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop",
-  volume: "1,234.56 ETH",
   verified: true,
+  email: "gamemaster@gmail.com",
   bio: "Passionate game collector and trader. Specializing in rare skins and items.",
   joinedDate: "January 2024",
-  collections: 45,
-  followers: 1234,
-  following: 567,
   location: "New York, USA",
   website: "https://gamemaster.com",
-  twitter: "@gamemaster",
-  instagram: "@gamemaster_nft",
 };
 
 export default function EditProfilePage() {
-  const [user, setUser] = useState<User>(mockUser);
+  const [user, setUser] = useState<UserData>(mockUser);
   const { currentUser, loading } = useAuth();
   const router = useRouter();
 
@@ -74,11 +67,7 @@ export default function EditProfilePage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex items-center space-x-4">
               <Avatar className="w-20 h-20">
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="rounded-full"
-                />
+                <img src={user.name} alt={user.name} className="rounded-full" />
               </Avatar>
               <Button
                 type="button"
@@ -148,7 +137,7 @@ export default function EditProfilePage() {
                 className="w-full"
               />
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label
                 htmlFor="twitter"
                 className="text-sm font-medium text-gray-700"
@@ -177,7 +166,7 @@ export default function EditProfilePage() {
                 onChange={handleChange}
                 className="w-full"
               />
-            </div>
+            </div> */}
             <div className="flex justify-end space-x-2">
               <Button
                 type="button"

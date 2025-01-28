@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import NFTGrid from "@/components/NFTGrid";
-import { User } from "@/lib/types/user";
+import { UserData } from "@/lib/types/user";
 import { Layers, Users2, Wallet } from "lucide-react";
 
-export default function ProfileContent({ user }: { user: User }) {
+export default function ProfileContent({ user }: { user: UserData }) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -20,9 +20,7 @@ export default function ProfileContent({ user }: { user: User }) {
                   <p className="text-sm font-medium text-gray-500">
                     Volume Traded
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {user.volume}
-                  </p>
+                  <p className="text-2xl font-bold text-gray-900">{100}</p>
                 </div>
               </div>
             </div>
@@ -37,9 +35,7 @@ export default function ProfileContent({ user }: { user: User }) {
                   <p className="text-sm font-medium text-gray-500">
                     Collections
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {user.collections}
-                  </p>
+                  <p className="text-2xl font-bold text-gray-900">{12}</p>
                 </div>
               </div>
             </div>
@@ -52,9 +48,7 @@ export default function ProfileContent({ user }: { user: User }) {
                 <Users2 className="h-8 w-8 text-orange-500 mr-3" />
                 <div>
                   <p className="text-sm font-medium text-gray-500">Following</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {user.following}
-                  </p>
+                  <p className="text-2xl font-bold text-gray-900">{7}</p>
                 </div>
               </div>
             </div>
