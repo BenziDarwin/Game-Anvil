@@ -10,19 +10,24 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getDocumentById } from "@/firebase/firestore";
 import { NFT } from "@/lib/types";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 export default function NFTPage() {
   const params = useParams();
   const [nft, setNft] = useState<NFT | null>();
   const [loading, setLoading] = useState<boolean>(true);
+  const { toast } = useToast();
 
   const fetchNFT = async () => {
     try {
       let data: NFT | null = await getDocumentById("nfts", params.id as string);
       setNft(data);
     } catch (e) {
-      toast.error("Unknown error occured");
+      toast({
+        title: "Error",
+        description: "Unknown error occured",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

@@ -3,17 +3,28 @@
 import { useEffect, useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VerifiedIcon, Users, Calendar } from "lucide-react";
 import NFTGrid from "@/components/NFTGrid";
-import { Collector } from "@/lib/types";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import HammerLoader from "@/components/Loader";
+import { getCollection, updateDocument } from "@/firebase/firestore";
+import type { UserData } from "@/lib/types/user";
+import { useToast } from "@/hooks/use-toast";
+import type { Followers } from "@/lib/types";
+import { Notification } from "@/components/Notification";
 
 export default function ProfilePage({ params }: { params: { id: string } }) {
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [collector, setCollector] = useState<UserData | null>(null);
+  const [followers, setFollowers] = useState<Followers | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "error" | "success";
+  } | null>(null);
 
   const { currentUser, loading } = useAuth();
   const router = useRouter();
@@ -22,32 +33,88 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
     if (!loading && !currentUser) {
       router.push("/auth/login");
     }
+  }, [currentUser, loading, router]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (currentUser) {
+        await Promise.all([fetchCollector(), fetchFollowers()]);
+        setIsLoading(false);
+      }
+    };
+    fetchData();
   }, [currentUser, loading]);
 
-  if (loading) return <HammerLoader />;
+  const fetchCollector = async () => {
+    try {
+      const res = await getCollection("users", [
+        { field: "uid", operator: "==", value: params.id },
+      ]);
+      if (res && res.length > 0) {
+        setCollector(res[0] as UserData);
+      }
+    } catch (error: any) {
+      setNotification({ message: error.message, type: "error" });
+    }
+  };
+
+  const fetchFollowers = async () => {
+    try {
+      const res = await getCollection("followers", [
+        { field: "uid", operator: "==", value: params.id },
+      ]);
+      if (res && res.length > 0) {
+        const followerData = res[0] as Followers;
+        setFollowers(followerData);
+        setIsFollowing(followerData.followers.includes(currentUser?.uid || ""));
+      }
+    } catch (error: any) {
+      setNotification({ message: error.message, type: "error" });
+    }
+  };
+
+  const followerHandler = async () => {
+    if (!currentUser) {
+      router.push("/auth/login");
+      return;
+    }
+
+    if (params.id === currentUser.uid) {
+      setNotification({ message: "You cannot follow yourself", type: "error" });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const res = await getCollection("followers", [
+        { field: "uid", operator: "==", value: params.id },
+      ]);
+      if (res && res.length > 0) {
+        const followerDoc = res[0];
+        const updatedFollowers = isFollowing
+          ? followerDoc.followers.filter((id: string) => id !== currentUser.uid)
+          : [...followerDoc.followers, currentUser.uid];
+
+        await updateDocument("followers", followerDoc.id, {
+          followers: updatedFollowers,
+        });
+        setIsFollowing(!isFollowing);
+        await fetchFollowers();
+      } else {
+        throw new Error("User not found");
+      }
+    } catch (error: any) {
+      setNotification({ message: error.message, type: "error" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (loading && isLoading) return <HammerLoader />;
 
   if (!currentUser) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Unauthorized - Redirecting to login...</div>
-      </div>
-    );
+    return null; // The useEffect will handle the redirect
   }
-
-  // Mock data - In a real app, fetch based on params.id
-  const collector: Collector = {
-    id: params.id,
-    name: "GameMaster",
-    avatar:
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop",
-    volume: "1,234.56 ETH",
-    verified: true,
-    bio: "Passionate game collector and trader. Specializing in rare skins and items.",
-    joinedDate: "January 2024",
-    collections: 45,
-    followers: 1234,
-    following: 567,
-  };
 
   return (
     <main className="min-h-screen">
@@ -56,22 +123,28 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
         <div className="max-w-7xl mx-auto px-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <Avatar className="w-32 h-32 border-4 border-white">
-              <img src={collector.avatar} alt={collector.name} />
+              <img
+                src={collector?.image || "/placeholder.svg"}
+                alt={collector?.name}
+              />
             </Avatar>
             <div className="text-center md:text-left">
               <div className="flex items-center gap-2 justify-center md:justify-start">
-                <h1 className="text-4xl font-bold">{collector.name}</h1>
-                {collector.verified && <VerifiedIcon className="h-6 w-6" />}
+                <h1 className="text-4xl font-bold">{collector?.name}</h1>
+                {collector?.verified && <VerifiedIcon className="h-6 w-6" />}
               </div>
-              <p className="mt-2 text-lg opacity-90">{collector.bio}</p>
+              <p className="mt-2 text-lg opacity-90">{collector?.bio}</p>
               <div className="flex items-center gap-4 mt-4 text-sm">
                 <div className="flex items-center gap-1">
                   <Users className="h-4 w-4" />
-                  <span>{collector.followers} followers</span>
+                  <span>{followers?.followers.length || 0} followers</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
-                  <span>Joined {collector.joinedDate}</span>
+                  <span>
+                    Joined{" "}
+                    {new Date(collector?.joinedDate || "").toLocaleDateString()}
+                  </span>
                 </div>
               </div>
             </div>
@@ -79,8 +152,9 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
               <Button
                 variant="secondary"
                 className="bg-white text-orange-500 hover:bg-orange-50"
+                onClick={followerHandler}
               >
-                Follow
+                {isFollowing ? "Unfollow" : "Follow"}
               </Button>
             </div>
           </div>
@@ -96,13 +170,22 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
           </TabsList>
 
           <TabsContent value="collected" className="mt-6">
-            <NFTGrid category={selectedCategory} />
+            <NFTGrid category="collected" uid={params.id} />
           </TabsContent>
 
           <TabsContent value="created" className="mt-6">
-            <NFTGrid category={selectedCategory} />
+            <NFTGrid category="created" uid={params.id} />
           </TabsContent>
         </Tabs>
+      </div>
+      <div className="fixed bottom-4 right-4">
+        {notification && (
+          <Notification
+            message={notification.message}
+            type={notification.type}
+            onClose={() => setNotification(null)}
+          />
+        )}
       </div>
     </main>
   );

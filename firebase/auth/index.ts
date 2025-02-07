@@ -2,13 +2,14 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  User,
 } from "firebase/auth";
 import { auth } from "../config";
 
 export const loginWithEmail = async (
   email: string,
   password: string,
-): Promise<void> => {
+): Promise<User> => {
   try {
     const userCredential = await signInWithEmailAndPassword(
       auth,
@@ -17,7 +18,7 @@ export const loginWithEmail = async (
     );
     // Signed in
     const user = userCredential.user;
-    console.log("User logged in:", user);
+    return user;
   } catch (error) {
     console.error("Error logging in:", error);
     throw error;
@@ -26,7 +27,7 @@ export const loginWithEmail = async (
 export const registerWithEmail = async (
   email: string,
   password: string,
-): Promise<void> => {
+): Promise<User> => {
   try {
     const userCredential = await createUserWithEmailAndPassword(
       auth,
@@ -35,7 +36,7 @@ export const registerWithEmail = async (
     );
     // Registered
     const user = userCredential.user;
-    console.log("User registered:", user);
+    return user;
   } catch (error) {
     console.error("Error registering:", error);
     throw error;

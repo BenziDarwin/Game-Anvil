@@ -1,13 +1,51 @@
 "use client";
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import NFTGrid from "@/components/NFTGrid";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { auth } from "@/firebase/config";
+import { getCollection } from "@/firebase/firestore";
+import { toast } from "@/hooks/use-toast";
 import { UserData } from "@/lib/types/user";
 import { Layers, Users2, Wallet } from "lucide-react";
+import { useEffect, useState } from "react";
 
-export default function ProfileContent({ user }: { user: UserData }) {
+export default function ProfileContent() {
+  const [user, setUser] = useState<UserData>();
+  const [loading, setLoading] = useState(true);
+  const [collectionCount, setCollectionCount] = useState(0);
+
+  const getUser = async () => {
+    try {
+      let res = await getCollection("users", [
+        { field: "uid", operator: "==", value: auth.currentUser?.uid! },
+      ]);
+      let count = await getCollection("collections", [
+        { field: "creator", operator: "==", value: auth.currentUser?.uid! },
+      ]);
+      setCollectionCount(count.length);
+      if (res !== null && res.length > 0) {
+        setUser(res[0] as UserData);
+      } else {
+        throw new Error("User not found");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -35,20 +73,9 @@ export default function ProfileContent({ user }: { user: UserData }) {
                   <p className="text-sm font-medium text-gray-500">
                     Collections
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">{12}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-white shadow-lg rounded-lg overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Users2 className="h-8 w-8 text-orange-500 mr-3" />
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Following</p>
-                  <p className="text-2xl font-bold text-gray-900">{7}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {collectionCount}
+                  </p>
                 </div>
               </div>
             </div>

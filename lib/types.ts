@@ -7,6 +7,7 @@ export interface NFT {
   image: string;
   category: NFTCategory;
   collection: string;
+  tokenId: string;
   created: string;
 }
 
@@ -30,4 +31,10 @@ export interface Collector {
   collections: number;
   followers: number;
   following: number;
+}
+
+export interface Followers {
+  id: string;
+  uid: string;
+  followers: string[];
 }

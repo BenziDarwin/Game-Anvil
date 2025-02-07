@@ -1,11 +1,13 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +22,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { auth } from "@/firebase/config";
 import { addDocument, getCollection } from "@/firebase/firestore";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { toast } from "sonner";
 import { DraggableBox } from "../DraggableBox";
 import CollectionsSelect from "./CollectionSelect";
 import { useIPFSUpload } from "@/hooks/useIPFSUpload";
@@ -36,7 +37,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
-import { NFT } from "@/lib/types";
+import type { NFT } from "@/lib/types";
+import { LoadingDialog } from "./LoadingDialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface FormData {
   name: string;
@@ -109,7 +112,7 @@ const ConfirmDialog = ({
   </Dialog>
 );
 
-const NftForm = () => {
+const NftForm = ({ collectionDialog }: { collectionDialog: boolean }) => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     description: "",
@@ -119,17 +122,23 @@ const NftForm = () => {
     nftType: "skins",
     dynamicFields: [],
   });
+  const { toast } = useToast();
   const [collections, setCollections] = useState<Collection[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const { uploadToIPFS, uploadToIPFSNoEncryption } = useIPFSUpload();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const router = useRouter();
+  const [loadingState, setLoadingState] = useState<{
+    isLoading: boolean;
+    message: string;
+  }>({ isLoading: false, message: "" });
 
   const handleFileUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      setLoading(true);
+      setLoadingState({ isLoading: true, message: "Uploading file..." });
       try {
         if (file) {
           setImageFile(file);
@@ -142,9 +151,13 @@ const NftForm = () => {
           throw new Error("No file selected");
         }
       } catch (error) {
-        toast.error("No file selected");
+        toast({
+          title: "Error",
+          description: "File upload failed",
+          variant: "destructive",
+        });
       } finally {
-        setLoading(false);
+        setLoadingState({ isLoading: false, message: "" });
       }
     },
     [uploadToIPFS],
@@ -168,17 +181,21 @@ const NftForm = () => {
       );
     } catch (error) {
       console.error("Error fetching collections:", error);
-      toast.error("Error fetching collections");
+      toast({
+        title: "Error",
+        description: "Error fetching collections",
+        variant: "destructive",
+      });
     }
   }, []);
 
   useEffect(() => {
     fetchCollections();
-  }, [fetchCollections]);
+  }, [fetchCollections, collectionDialog]);
 
   const handleImageUpload = useCallback(
     async (file: File) => {
-      setLoading(true);
+      setLoadingState({ isLoading: true, message: "Uploading image..." });
       try {
         const hash = await uploadToIPFSNoEncryption(file);
         console.log("Image uploaded to IPFS:", hash);
@@ -189,8 +206,13 @@ const NftForm = () => {
         }));
       } catch (error) {
         console.error("Upload failed:", error);
+        toast({
+          title: "Error",
+          description: "Image upload failed",
+          variant: "destructive",
+        });
       } finally {
-        setLoading(false);
+        setLoadingState({ isLoading: false, message: "" });
       }
     },
     [uploadToIPFSNoEncryption],
@@ -225,24 +247,26 @@ const NftForm = () => {
     }));
   }, []);
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      setLoading(true);
-      try {
-        setIsConfirmDialogOpen(true);
-      } catch (e) {
-        console.error(e);
-        toast.error("Error preparing NFT creation");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [formData, uploadToIPFSNoEncryption],
-  );
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      setIsConfirmDialogOpen(true);
+    } catch (e) {
+      console.error(e);
+      toast({
+        title: "Error",
+        description: "Error preparing NFT creation",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const createNFT = useCallback(
     async (tokenURI: string, contractAddress: string, creationFee: string) => {
+      setLoadingState({ isLoading: true, message: "Creating NFT..." });
       try {
         const abi = GameNFT.abi;
         const contract = await getEthereumContract(contractAddress, abi);
@@ -255,35 +279,52 @@ const NftForm = () => {
 
         console.log("NFT Created Successfully!", receipt);
 
-        const event = receipt.events?.find(
-          (e: any) => e.event === "NFTCreated",
-        );
-        const tokenId = event?.args?.[0];
+        // Manually decode logs if events are missing
+        const iface = new ethers.Interface(abi);
+        let tokenId: string | undefined;
 
-        console.log("New Token ID:", tokenId);
+        for (const log of receipt.logs) {
+          try {
+            const parsedLog = iface.parseLog(log);
+            if (parsedLog && parsedLog.name === "NFTCreated") {
+              tokenId = parsedLog.args.tokenId.toString();
+              break;
+            }
+          } catch (error) {
+            // Ignore logs that don't match ABI events
+          }
+        }
 
-        // Add the new NFT to the database
-        await addDocument("nfts", {
-          ...formData,
-          user: auth.currentUser?.uid,
-          file: imageFile?.name,
-          tokenId: tokenId,
+        if (!tokenId) {
+          throw new Error("Failed to retrieve Token ID from event");
+        }
+
+        console.log("Token ID:", tokenId);
+
+        toast({
+          title: "NFT Created",
+          description: "NFT created successfully",
+          variant: "default",
         });
-
-        toast.success("NFT created successfully!");
         return tokenId;
       } catch (error) {
         console.error("Error creating NFT:", error);
-        toast.error("Error creating NFT");
+        toast({
+          title: "Error",
+          description: "Error creating NFT",
+          variant: "destructive",
+        });
         throw error;
+      } finally {
+        setLoadingState({ isLoading: false, message: "" });
       }
     },
-    [formData, imageFile],
+    [],
   );
 
   const handleConfirmNFTCreation = useCallback(async () => {
     setIsConfirmDialogOpen(false);
-    setLoading(true);
+    setLoadingState({ isLoading: true, message: "Preparing NFT data..." });
     const data = {
       meta: formData.dynamicFields,
       image: formData.image,
@@ -298,42 +339,70 @@ const NftForm = () => {
         type: "application/json",
       });
 
+      setLoadingState({
+        isLoading: true,
+        message: "Uploading NFT metadata...",
+      });
       const hash = await uploadToIPFSNoEncryption(file);
 
-      const nft: NFT = {
-        title: formData.name,
-        description: formData.description,
-        creator: auth.currentUser!.uid,
-        price: "0.005",
-        image: formData.image,
-        collection: formData.collection,
-        category: formData.nftType,
-        created: new Date().toISOString(),
-      };
-
-      await addDocument("nfts", nft);
-
-      await createNFT(
+      setLoadingState({
+        isLoading: true,
+        message: "Creating NFT on blockchain...",
+      });
+      const tokenId = await createNFT(
         `https://${hash}.ipfs.w3s.link`,
         formData.collection,
         "0.005",
       );
-      setFormData({
-        name: "",
-        description: "",
-        image: "",
-        file: { path: "", key: new Uint8Array() },
-        collection: "",
-        nftType: "skins",
-        dynamicFields: [],
-      });
+      console.log("Token ID:", tokenId);
+
+      if (tokenId) {
+        setLoadingState({
+          isLoading: true,
+          message: "Saving NFT to database...",
+        });
+        const nft: NFT = {
+          title: formData.name,
+          description: formData.description,
+          creator: auth.currentUser!.uid,
+          price: "0.005",
+          image: formData.image,
+          collection: formData.collection,
+          category: formData.nftType,
+          created: new Date().toISOString(),
+          tokenId: tokenId,
+        };
+
+        await addDocument("nfts", nft);
+
+        setFormData({
+          name: "",
+          description: "",
+          image: "",
+          file: { path: "", key: new Uint8Array() },
+          collection: "",
+          nftType: "skins",
+          dynamicFields: [],
+        });
+
+        toast({
+          title: "NFT Created",
+          description: "NFT created and saved successfully",
+          variant: "default",
+        });
+        router.push("/profile");
+      }
     } catch (error) {
       console.error("Error in NFT creation:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create NFT",
+        variant: "destructive",
+      });
     } finally {
-      setLoading(false);
-      router.push("/profile");
+      setLoadingState({ isLoading: false, message: "" });
     }
-  }, [createNFT]);
+  }, [createNFT, formData, uploadToIPFSNoEncryption, router]);
 
   const memoizedNFTTypes = useMemo(() => NFT_TYPES, []);
 
@@ -416,6 +485,7 @@ const NftForm = () => {
                 <DraggableBox
                   onDrop={handleImageUpload}
                   image={formData.image}
+                  disabled={isUploading || loading}
                 />
               </div>
               <div>
@@ -425,6 +495,7 @@ const NftForm = () => {
                   type="file"
                   accept=".png,.jpg,.jpeg,.gif"
                   onChange={handleFileUpload}
+                  disabled={isUploading || loading}
                   required
                 />
                 {imageFile && (
@@ -525,7 +596,7 @@ const NftForm = () => {
           type="submit"
           className="w-full bg-orange-500 hover:bg-orange-600"
           onClick={handleSubmit}
-          disabled={loading}
+          disabled={loading || isUploading}
         >
           {loading ? "Creating..." : "Create NFT"}
         </Button>
@@ -535,6 +606,10 @@ const NftForm = () => {
         onClose={() => setIsConfirmDialogOpen(false)}
         onConfirm={handleConfirmNFTCreation}
         creationFee={"0.005"}
+      />
+      <LoadingDialog
+        isOpen={loadingState.isLoading}
+        message={loadingState.message}
       />
     </Card>
   );

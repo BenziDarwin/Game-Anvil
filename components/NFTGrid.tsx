@@ -1,28 +1,28 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { auth } from "@/firebase/config";
+import { getCollection } from "@/firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
+import { NFT } from "@/lib/types";
 import { Heart, Share2 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import { NFT } from "@/lib/types";
-import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCollection } from "@/firebase/firestore";
-import { auth } from "@/firebase/config";
-import { toast } from "sonner";
-import { NFTCategory } from "@/lib/types/nft";
+import { use, useEffect, useRef, useState } from "react";
 
 interface NFTGridProps {
   category: string;
+  uid?: string;
 }
 
-export default function NFTGrid({ category }: NFTGridProps) {
+export default function NFTGrid({ category, uid }: NFTGridProps) {
   const router = useRouter();
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [nfts, setNFTS] = useState<NFT[]>([]);
   const [filteredNfts, setFilteredNfts] = useState<NFT[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { toast } = useToast();
 
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -72,13 +72,21 @@ export default function NFTGrid({ category }: NFTGridProps) {
     try {
       if (category === "created") {
         let data: NFT[] = await getCollection("nfts", [
-          { field: "creator", operator: "==", value: auth.currentUser!.uid },
+          {
+            field: "creator",
+            operator: "==",
+            value: auth.currentUser!?.uid || uid,
+          },
         ]);
         setNFTS(data);
         setFilteredNfts(data);
       } else if (category === "collected") {
         let data: NFT[] = await getCollection("nfts", [
-          { field: "owner", operator: "==", value: auth.currentUser!.uid },
+          {
+            field: "owner",
+            operator: "==",
+            value: auth.currentUser?.uid || uid,
+          },
         ]);
         setNFTS(data);
         setFilteredNfts(data);
@@ -88,7 +96,11 @@ export default function NFTGrid({ category }: NFTGridProps) {
         setFilteredNfts(data);
       }
     } catch (e: any) {
-      toast.error("Unknown error has occured!");
+      toast({
+        title: "Error",
+        description: "Unknown error occured.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

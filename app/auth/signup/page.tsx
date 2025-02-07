@@ -18,9 +18,9 @@ import { useRouter } from "next/navigation";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { registerWithEmail } from "@/firebase/auth";
-import { email } from "@web3-storage/w3up-client/types";
-import { UserData } from "@/lib/types/user";
+import type { UserData } from "@/lib/types/user";
 import { addDocument } from "@/firebase/firestore";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -33,12 +33,11 @@ export default function SignUpPage() {
     confirmPassword: "",
     fullName: "",
     bio: "",
-    joinedDate: "",
-    location: "",
-    website: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -66,6 +65,7 @@ export default function SignUpPage() {
     }
 
     if (formData.password !== formData.confirmPassword) {
+      console.log(formData);
       toast({
         title: "Validation Error",
         description: "Passwords do not match",
@@ -78,13 +78,7 @@ export default function SignUpPage() {
   };
 
   const validateUserDetailsForm = () => {
-    if (
-      !formData.fullName.trim() ||
-      !formData.bio.trim() ||
-      !formData.joinedDate.trim() ||
-      !formData.location.trim() ||
-      !formData.website.trim()
-    ) {
+    if (!formData.fullName.trim() || !formData.bio.trim()) {
       toast({
         title: "Validation Error",
         description: "All fields are required",
@@ -112,14 +106,13 @@ export default function SignUpPage() {
     if (currentStep === 3) {
       setIsLoading(true);
       try {
-        await registerWithEmail(formData.email, formData.password);
-        let userData: UserData = {
+        let res = await registerWithEmail(formData.email, formData.password);
+        const userData: UserData = {
           name: formData.fullName,
           bio: formData.bio,
-          joinedDate: new Date(formData.joinedDate).toISOString(),
-          location: formData.location,
-          website: formData.website,
           email: formData.email,
+          uid: res.uid,
+          joinedDate: new Date().toISOString(),
           verified: false,
         };
         await addDocument("users", userData);
@@ -197,40 +190,10 @@ export default function SignUpPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
-              <Input
+              <Textarea
                 id="bio"
                 placeholder="Enter your bio..."
                 value={formData.bio}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="joinedDate">Joined Date</Label>
-              <Input
-                id="joinedDate"
-                type="date"
-                value={formData.joinedDate}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                placeholder="Enter your location..."
-                value={formData.location}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="website">Website</Label>
-              <Input
-                id="website"
-                placeholder="Enter your website..."
-                value={formData.website}
                 onChange={handleChange}
                 required
               />
@@ -239,14 +202,22 @@ export default function SignUpPage() {
         );
       case 3:
         return (
-          <div className="space-y-2">
-            <p>Please review your information:</p>
-            <p>Email: {formData.email}</p>
-            <p>Full Name: {formData.fullName}</p>
-            <p>Bio: {formData.bio}</p>
-            <p>Joined Date: {formData.joinedDate}</p>
-            <p>Location: {formData.location}</p>
-            <p>Website: {formData.website}</p>
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Review Your Information</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="font-medium">Email:</span>
+                <span>{formData.email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Full Name:</span>
+                <span>{formData.fullName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Bio:</span>
+                <span className="text-right">{formData.bio}</span>
+              </div>
+            </div>
           </div>
         );
       default:

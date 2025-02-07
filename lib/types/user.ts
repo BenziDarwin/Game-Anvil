@@ -6,5 +6,7 @@ export interface UserData {
   joinedDate: string;
   location?: string;
   website?: string;
+  uid: string;
+  image?: string;
   email: string;
 }

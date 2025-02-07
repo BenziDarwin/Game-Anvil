@@ -148,7 +148,7 @@ export default function Page() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-              <NFTForms />
+              <NFTForms collectionDialog={isDialogOpen} />
             </div>
           </div>
         </main>

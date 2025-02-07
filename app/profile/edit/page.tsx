@@ -11,23 +11,21 @@ import { Label } from "@/components/ui/label";
 import { UserData } from "@/lib/types/user";
 import { useAuth } from "@/context/AuthContext";
 import HammerLoader from "@/components/Loader";
-
-// In a real app, you'd fetch the user data here
-const mockUser: UserData = {
-  id: "1",
-  name: "GameMaster",
-  verified: true,
-  email: "gamemaster@gmail.com",
-  bio: "Passionate game collector and trader. Specializing in rare skins and items.",
-  joinedDate: "January 2024",
-  location: "New York, USA",
-  website: "https://gamemaster.com",
-};
+import { useToast } from "@/hooks/use-toast";
+import { getCollection, setDocument } from "@/firebase/firestore";
+import { auth, storage } from "@/firebase/config";
+import { DocumentData } from "firebase/firestore";
+import { deleteFile, uploadFile } from "@/firebase/storage";
+import { LoadingDialog } from "@/components/NFTForms/LoadingDialog";
 
 export default function EditProfilePage() {
-  const [user, setUser] = useState<UserData>(mockUser);
+  const [user, setUser] = useState<UserData>();
   const { currentUser, loading } = useAuth();
+  const [dataLoading, setDataLoading] = useState(true);
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!loading && !currentUser) {
@@ -35,27 +33,75 @@ export default function EditProfilePage() {
     }
   }, [currentUser, loading]);
 
-  if (loading) return <HammerLoader />;
-  if (!currentUser) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Unauthorized - Redirecting to login...</div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetchUser();
+  }, [currentUser, loading]);
+
+  const fetchUser = async () => {
+    try {
+      let res = await getCollection("users", [
+        { field: "uid", operator: "==", value: auth.currentUser?.uid! },
+      ]);
+      if (res !== null && res.length > 0) {
+        setUser(res[0] as UserData);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  const handleImageUpload = async () => {
+    if (!avatar) return;
+    setUploading(true);
+    if (user?.image) {
+      await deleteFile(user.image);
+    }
+    const downloadURL = await uploadFile(`avatars/${currentUser?.uid}`, avatar);
+    console.log(downloadURL);
+    let newUser: UserData = { ...user!, image: downloadURL };
+    setUser(newUser);
+
+    setUploading(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you'd send the updated user data to your API here
-    console.log("Updated user:", user);
-    router.push(`/profile/${user.id}`);
+    if (avatar) await handleImageUpload();
+    try {
+      await setDocument("users", user?.id!, user as DocumentData);
+      console.log(user);
+      router.push("/profile");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    if (user) {
+      setUser({ ...user, [e.target.name]: e.target.value });
+    }
   };
+
+  if (loading) return <HammerLoader />;
+  if (dataLoading) return <div>Loading...</div>;
+  if (!currentUser)
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Unauthorized - Redirecting to login...
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-100 to-white py-12">
@@ -67,15 +113,17 @@ export default function EditProfilePage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex items-center space-x-4">
               <Avatar className="w-20 h-20">
-                <img src={user.name} alt={user.name} className="rounded-full" />
+                <img
+                  src={user?.image}
+                  alt={user?.name}
+                  className="rounded-full"
+                />
               </Avatar>
-              <Button
-                type="button"
-                variant="outline"
-                className="text-orange-500 border-orange-500 hover:bg-orange-50"
-              >
-                Change Avatar
-              </Button>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setAvatar(e.target.files?.[0] || null)}
+              />
             </div>
             <div className="space-y-2">
               <Label
@@ -87,7 +135,7 @@ export default function EditProfilePage() {
               <Input
                 id="name"
                 name="name"
-                value={user.name}
+                value={user?.name}
                 onChange={handleChange}
                 className="w-full"
               />
@@ -102,71 +150,11 @@ export default function EditProfilePage() {
               <Textarea
                 id="bio"
                 name="bio"
-                value={user.bio}
+                value={user?.bio}
                 onChange={handleChange}
                 className="w-full"
               />
             </div>
-            <div className="space-y-2">
-              <Label
-                htmlFor="location"
-                className="text-sm font-medium text-gray-700"
-              >
-                Location
-              </Label>
-              <Input
-                id="location"
-                name="location"
-                value={user.location}
-                onChange={handleChange}
-                className="w-full"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label
-                htmlFor="website"
-                className="text-sm font-medium text-gray-700"
-              >
-                Website
-              </Label>
-              <Input
-                id="website"
-                name="website"
-                value={user.website}
-                onChange={handleChange}
-                className="w-full"
-              />
-            </div>
-            {/* <div className="space-y-2">
-              <Label
-                htmlFor="twitter"
-                className="text-sm font-medium text-gray-700"
-              >
-                Twitter
-              </Label>
-              <Input
-                id="twitter"
-                name="twitter"
-                value={user.twitter}
-                onChange={handleChange}
-                className="w-full"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label
-                htmlFor="instagram"
-                className="text-sm font-medium text-gray-700"
-              >
-                Instagram
-              </Label>
-              <Input
-                id="instagram"
-                name="instagram"
-                value={user.instagram}
-                onChange={handleChange}
-                className="w-full"
-              />
-            </div> */}
             <div className="flex justify-end space-x-2">
               <Button
                 type="button"
@@ -179,6 +167,7 @@ export default function EditProfilePage() {
               <Button
                 type="submit"
                 className="bg-orange-500 text-white hover:bg-orange-600"
+                disabled={uploading}
               >
                 Save Changes
               </Button>
@@ -186,6 +175,10 @@ export default function EditProfilePage() {
           </form>
         </CardContent>
       </Card>
+      <LoadingDialog
+        isOpen={uploading}
+        message="Uploading image, please wait..."
+      />
     </div>
   );
 }
