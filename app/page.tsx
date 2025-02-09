@@ -1,15 +1,16 @@
 import Categories from "@/components/Categories";
+import FutureVision from "@/components/FutureVision";
+import GameEngineIntegration from "@/components/GameEngineIntegration";
 import Hero from "@/components/Hero";
-import TrendingNFTs from "@/components/TrendingNFTs";
-import TopCollectors from "@/components/TopCollectors";
+import HowItWorks from "@/components/HowItWorks";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-background">
       <Hero />
-      <TrendingNFTs />
+      <GameEngineIntegration />
       <Categories />
-      <TopCollectors />
+      <FutureVision />
     </main>
   );
 }
