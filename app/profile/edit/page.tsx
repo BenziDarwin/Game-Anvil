@@ -15,9 +15,9 @@ import { useToast } from "@/hooks/use-toast";
 import { getCollection, setDocument } from "@/firebase/firestore";
 import { auth, storage } from "@/firebase/config";
 import { DocumentData } from "firebase/firestore";
-import { deleteFile, uploadFile } from "@/firebase/storage";
 import { LoadingDialog } from "@/components/NFTForms/LoadingDialog";
 import { set } from "date-fns";
+import { deleteFile, uploadFile } from "@/cloudfare/storage";
 
 export default function EditProfilePage() {
   const [user, setUser] = useState<UserData | null>(null);
@@ -63,7 +63,16 @@ export default function EditProfilePage() {
     if (!avatar) return;
     setUploading(true);
     if (user?.image) {
-      await deleteFile(user.image);
+      try {
+        console.log("Deleting old image");
+        await deleteFile(user.image);
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     }
     const downloadURL = await uploadFile(`avatars/${currentUser?.uid}`, avatar);
     setUploading(false);

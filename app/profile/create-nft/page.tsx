@@ -55,11 +55,12 @@ export default function Page() {
     try {
       // Deploy the contract
       const private_key = process.env.NEXT_PUBLIC_PRIVATE_KEY;
+      const chainRPC = process.env.NEXT_PUBLIC_CHAIN_RPC;
       const contract = await deployContract(
         private_key!,
         GameNFT.abi,
         GameNFT.bytecode,
-        "http://127.0.0.1:7545",
+        chainRPC!,
         [name, symbol],
       );
       const address = await contract.getAddress();
