@@ -17,9 +17,10 @@ import { auth, storage } from "@/firebase/config";
 import { DocumentData } from "firebase/firestore";
 import { deleteFile, uploadFile } from "@/firebase/storage";
 import { LoadingDialog } from "@/components/NFTForms/LoadingDialog";
+import { set } from "date-fns";
 
 export default function EditProfilePage() {
-  const [user, setUser] = useState<UserData>();
+  const [user, setUser] = useState<UserData | null>(null);
   const { currentUser, loading } = useAuth();
   const [dataLoading, setDataLoading] = useState(true);
   const [avatar, setAvatar] = useState<File | null>(null);
@@ -34,8 +35,10 @@ export default function EditProfilePage() {
   }, [currentUser, loading]);
 
   useEffect(() => {
-    fetchUser();
-  }, [currentUser, loading]);
+    if (currentUser) {
+      fetchUser();
+    }
+  }, [currentUser]);
 
   const fetchUser = async () => {
     try {
@@ -63,19 +66,22 @@ export default function EditProfilePage() {
       await deleteFile(user.image);
     }
     const downloadURL = await uploadFile(`avatars/${currentUser?.uid}`, avatar);
-    console.log(downloadURL);
-    let newUser: UserData = { ...user!, image: downloadURL };
-    setUser(newUser);
-
     setUploading(false);
+    setUser({ ...user, image: downloadURL } as UserData);
+    return downloadURL;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (avatar) await handleImageUpload();
+    let imageUrl = user?.image;
+    if (avatar) {
+      imageUrl = await handleImageUpload();
+    }
     try {
-      await setDocument("users", user?.id!, user as DocumentData);
-      console.log(user);
+      await setDocument("users", user?.id!, {
+        ...user,
+        image: imageUrl,
+      } as DocumentData);
       router.push("/profile");
     } catch (error: any) {
       toast({
@@ -135,7 +141,7 @@ export default function EditProfilePage() {
               <Input
                 id="name"
                 name="name"
-                value={user?.name}
+                value={user?.name || ""}
                 onChange={handleChange}
                 className="w-full"
               />
@@ -150,7 +156,7 @@ export default function EditProfilePage() {
               <Textarea
                 id="bio"
                 name="bio"
-                value={user?.bio}
+                value={user?.bio || ""}
                 onChange={handleChange}
                 className="w-full"
               />

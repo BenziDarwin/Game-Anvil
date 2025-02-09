@@ -1,5 +1,5 @@
 export interface NFT {
-  id?: number;
+  id?: string;
   title: string;
   description: string;
   creator: string;
@@ -7,6 +7,7 @@ export interface NFT {
   image: string;
   category: NFTCategory;
   collection: string;
+  likes?: string[];
   tokenId: string;
   created: string;
 }

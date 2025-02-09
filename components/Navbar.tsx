@@ -18,6 +18,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import MainNav from "./MainNav";
 import UserMenu from "./UserMenu";
+import { useAuth } from "@/context/AuthContext";
 
 // Define the paths where the chain selector should be shown
 const CHAIN_SELECTOR_PATHS = ["/profile/create-nft"];
@@ -27,6 +28,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const { currentUser } = useAuth();
 
   const showChainSelector = CHAIN_SELECTOR_PATHS.includes(pathname);
 
@@ -92,7 +94,7 @@ export default function Navbar() {
                     onChainChange={handleChainChange}
                   />
                 )}
-                {auth.currentUser ? (
+                {currentUser ? (
                   <>
                     <Link href="/profile">
                       <Button

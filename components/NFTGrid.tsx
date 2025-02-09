@@ -3,13 +3,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { auth } from "@/firebase/config";
-import { getCollection } from "@/firebase/firestore";
+import { getCollection, updateDocument } from "@/firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import { NFT } from "@/lib/types";
 import { Heart, Share2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface NFTGridProps {
   category: string;
@@ -18,7 +18,7 @@ interface NFTGridProps {
 
 export default function NFTGrid({ category, uid }: NFTGridProps) {
   const router = useRouter();
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [nfts, setNFTS] = useState<NFT[]>([]);
   const [filteredNfts, setFilteredNfts] = useState<NFT[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -98,7 +98,7 @@ export default function NFTGrid({ category, uid }: NFTGridProps) {
     } catch (e: any) {
       toast({
         title: "Error",
-        description: "Unknown error occured.",
+        description: "Unknown error occurred.",
         variant: "destructive",
       });
     } finally {
@@ -108,7 +108,7 @@ export default function NFTGrid({ category, uid }: NFTGridProps) {
 
   useEffect(() => {
     fetchCollection();
-  }, []);
+  }, [category, uid]);
 
   const filterCategory = (category: string) => {
     if (category === "all") {
@@ -123,6 +123,48 @@ export default function NFTGrid({ category, uid }: NFTGridProps) {
   }, [category]);
 
   if (loading) return <div>Loading...</div>;
+
+  const handleLike = async (nftId: string) => {
+    if (!auth.currentUser) {
+      toast({
+        title: "Error",
+        description: "You need to be logged in to like an NFT.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const nft = nfts.find((nft) => nft.id === nftId);
+      if (!nft) return;
+
+      const updatedLikes = nft.likes?.includes(auth.currentUser.uid)
+        ? nft.likes.filter((id) => id !== auth.currentUser!.uid) // Remove like
+        : [...(nft.likes || []), auth.currentUser.uid]; // Add like
+
+      console.log(updatedLikes);
+
+      // Update the NFT in Firestore
+      await updateDocument("nfts", nftId.toString(), { likes: updatedLikes });
+
+      // Update the local state
+      let updatedNft = nfts.find((nft) => nft.id === nftId);
+      updatedNft!.likes = updatedLikes;
+      if (updatedNft) {
+        let newNfts: NFT[] = [
+          ...nfts.filter((nft) => nft.id !== nftId),
+          updatedNft,
+        ];
+        setNFTS(newNfts);
+      }
+    } catch (e: any) {
+      toast({
+        title: "Error",
+        description: "Unknown error occurred.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -157,8 +199,15 @@ export default function NFTGrid({ category, uid }: NFTGridProps) {
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-lg font-semibold">{nft.title}</h3>
               <div className="flex items-center gap-2">
-                <button className="p-2 hover:bg-gray-100 rounded-full">
-                  <Heart className="h-5 w-5 text-gray-600" />
+                <button
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                  onClick={() => handleLike(nft.id!)}
+                >
+                  {nft.likes?.includes(auth.currentUser?.uid!) ? (
+                    <Heart className="h-5 w-5 text-red-500" />
+                  ) : (
+                    <Heart className="h-5 w-5 text-gray-600" />
+                  )}
                 </button>
                 <button className="p-2 hover:bg-gray-100 rounded-full">
                   <Share2 className="h-5 w-5 text-gray-600" />
@@ -170,7 +219,9 @@ export default function NFTGrid({ category, uid }: NFTGridProps) {
               <span className="text-orange-500 font-semibold">
                 {nft.price} ETH
               </span>
-              {/* <span className="text-sm text-gray-500">{nft.likes} likes</span> */}
+              <span className="text-sm text-gray-500">
+                {nft.likes ? nft.likes?.length : 0} likes
+              </span>
             </div>
           </div>
         </Card>
