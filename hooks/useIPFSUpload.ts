@@ -3,6 +3,7 @@
 import { create } from "@web3-storage/w3up-client";
 import { useState } from "react";
 import { encryptFile, generateKey } from "@/actions/encryptFile";
+import { UnknownLink } from "@ucanto/client";
 
 export const useIPFSUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -27,6 +28,16 @@ export const useIPFSUpload = () => {
     } catch (err) {
       console.error("Upload error:", err);
       throw new Error("Failed to upload to IPFS");
+    }
+  };
+
+  const removeFileFromIPFS = async (cid: UnknownLink) => {
+    const { client } = await initializeClient();
+    try {
+      await client.remove(cid);
+    } catch (err) {
+      console.error("Remove error:", err);
+      throw new Error("Failed to remove file from IPFS");
     }
   };
 
@@ -69,5 +80,11 @@ export const useIPFSUpload = () => {
     }
   };
 
-  return { uploadToIPFS, uploadToIPFSNoEncryption, isUploading, error };
+  return {
+    uploadToIPFS,
+    uploadToIPFSNoEncryption,
+    removeFileFromIPFS,
+    isUploading,
+    error,
+  };
 };
