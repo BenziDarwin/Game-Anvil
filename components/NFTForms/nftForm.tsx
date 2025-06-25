@@ -140,7 +140,15 @@ export default function NftForm({
       }
 
       const files = getFiles(draft.id);
-      console.log("Retrieved files:", files);
+
+      if (!window.ethereum) {
+        toast({
+          title: "Error",
+          description: "Ethereum provider not found. Please install MetaMask.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       if (!files.imageFile || !files.gameFile) {
         toast({
