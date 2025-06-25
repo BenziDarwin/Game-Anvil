@@ -30,7 +30,7 @@ export default function Navbar() {
   const router = useRouter();
   const { currentUser } = useAuth();
 
-  const showChainSelector = CHAIN_SELECTOR_PATHS.includes(pathname);
+  const showChainSelector = CHAIN_SELECTOR_PATHS.includes(pathname || "");
 
   useEffect(() => {
     const fetchCurrentChain = async () => {

@@ -21,7 +21,7 @@ export default function NFTPage() {
 
   const fetchNFT = async () => {
     try {
-      const data = await getDocumentById("nfts", params.id as string);
+      const data = await getDocumentById("nfts", params?.id as string);
       setNft(data as NFT);
     } catch (e) {
       toast({
@@ -36,7 +36,7 @@ export default function NFTPage() {
 
   useEffect(() => {
     fetchNFT();
-  }, [params.id]);
+  }, [params?.id]);
 
   const handleLike = async () => {
     if (!auth.currentUser || !nft?.id) {

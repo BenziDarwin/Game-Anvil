@@ -6,7 +6,7 @@ import {
   deleteDoc,
   doc,
   getDocs,
-  getDoc, // Import getDoc
+  getDoc,
   query,
   setDoc,
   updateDoc,
@@ -53,14 +53,15 @@ export async function getDocumentById<T = DocumentData>(
 }
 
 /**
- * Adds a new document to a Firestore collection.
+ * Adds a new document to a Firestore collection and returns the document ID.
  */
 export async function addDocument<T extends DocumentData>(
   collectionName: string,
   data: T,
-): Promise<void> {
+): Promise<string> {
   const colRef = collection(db, collectionName);
-  await addDoc(colRef, data);
+  const docRef = await addDoc(colRef, data);
+  return docRef.id;
 }
 
 /**

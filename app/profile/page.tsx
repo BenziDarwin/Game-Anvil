@@ -3,9 +3,10 @@
 import HammerLoader from "@/components/Loader";
 import ProfileContent from "@/components/Profile/ProfileContent";
 import ProfileHeader from "@/components/Profile/ProfileHeader";
-import { AppSidebar } from "@/components/Profile/SideBar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/context/AuthContext";
+import { Separator } from "@radix-ui/react-separator";
+import { User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -29,12 +30,20 @@ export default function ProfilePage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
+    <>
       <main className="min-h-screen">
+        {/* Header */}
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-white px-6">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <div className="flex items-center gap-2">
+            <User className="w-5 h-5 text-orange-500" />
+            <h1 className="text-lg font-semibold">Profile Menu</h1>
+          </div>
+        </header>
         <ProfileHeader />
         <ProfileContent />
       </main>
-    </SidebarProvider>
+    </>
   );
 }

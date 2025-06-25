@@ -28,7 +28,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "actions/encryptFile.mts",
-    "actions/encryptFile.js"
+    "actions/encryptFile.js",
+    "pages/api/deploy-collection.js",
+    "components/ErrorBoundary.jsx"
   ],
   "exclude": ["node_modules"]
 }
